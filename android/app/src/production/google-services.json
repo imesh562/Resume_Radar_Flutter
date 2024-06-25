@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "915115378660",
+    "project_id": "resume-radar-a8a3d",
+    "storage_bucket": "resume-radar-a8a3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915115378660:android:1481f92b5daf6681a769f1",
+        "android_client_info": {
+          "package_name": "com.ijapps.resumeradar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4zzVYbm_RcOojjj3n3hTtksApwbrmx5w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

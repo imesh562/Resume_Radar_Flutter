@@ -1,0 +1,6 @@
+#include "Flutter/Generated.xcconfig"
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-production.xcconfig"
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-production.xcconfig"
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile-production.xcconfig"
+
+FLUTTER_TARGET=lib/flavors/main_production.dart
