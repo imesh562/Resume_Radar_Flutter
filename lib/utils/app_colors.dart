@@ -22,4 +22,5 @@ class AppColors {
   static const Color waitingTimeColor = Color(0xFF36AE42);
   static const Color warningColor = Color(0xFFD28020);
   static const Color darkGrey = Color(0xFF525252);
+  static const Color declinedFillColor = Color(0xFFEF5600);
 }

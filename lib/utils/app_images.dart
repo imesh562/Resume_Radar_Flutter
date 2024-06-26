@@ -5,4 +5,5 @@ class AppImages {
   static const String icSuccessRounded = 'images/png/ic_success_rounded.png';
   static const String icWarningRounded = 'images/png/ic_warning_rounded.png';
   static const String icCalendar = 'images/png/ic_calendar.png';
+  static const String icAttachment = 'images/png/ic_attachment.png';
 }

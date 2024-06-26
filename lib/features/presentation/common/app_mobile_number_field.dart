@@ -1,3 +1,4 @@
+import 'package:country_codes/country_codes.dart';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -162,7 +163,20 @@ class _AppMobileNumberFieldState extends State<AppMobileNumberField> {
     ),
   );
 
-  getDialCode(String countryCode) {
+  Future<String> setDialCode() async {
+    String dialCode;
+    try {
+      await CountryCodes.init();
+
+      final CountryDetails details = CountryCodes.detailsForLocale();
+      dialCode = details.dialCode!;
+    } on Exception catch (e) {
+      dialCode = '61';
+    }
+    return dialCode;
+  }
+
+  getDialCode(String? countryCode) async {
     Country? country;
     for (var element in countries) {
       if (element.dialCode == countryCode) {
@@ -171,8 +185,9 @@ class _AppMobileNumberFieldState extends State<AppMobileNumberField> {
       }
     }
     if (country == null) {
+      String dialCode = await setDialCode();
       for (var element in countries) {
-        if (element.dialCode == "61") {
+        if (element.dialCode == dialCode.replaceFirst('+', '')) {
           country = element;
           break;
         }
@@ -189,18 +204,18 @@ class _AppMobileNumberFieldState extends State<AppMobileNumberField> {
 
   @override
   void initState() {
-    if (widget.initialCountryCode != null) {
-      getDialCode(widget.initialCountryCode!);
-    }
-    setState(() {
-      focusNode = widget.focusNode ?? FocusNode();
-      focusNode!.addListener(() {
-        if (focusNode!.hasFocus) {
+    getDialCode(widget.initialCountryCode);
+    focusNode = widget.focusNode ?? FocusNode();
+    focusNode!.addListener(() {
+      if (focusNode!.hasFocus) {
+        setState(() {
           hasFocus = true;
-        } else {
+        });
+      } else {
+        setState(() {
           hasFocus = false;
-        }
-      });
+        });
+      }
     });
     super.initState();
   }

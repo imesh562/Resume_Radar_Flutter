@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:resume_radar/utils/app_dimensions.dart';
 
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_dimensions.dart';
 import '../../../utils/enums.dart';
 
 class AppButton extends StatefulWidget {
@@ -44,7 +44,7 @@ class _AppButtonState extends State<AppButton> {
                   : AppColors.profileArrowColor
               : null,
           gradient: widget.buttonColor == null
-              ? LinearGradient(
+              ? const LinearGradient(
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [

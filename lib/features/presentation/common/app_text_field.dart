@@ -36,9 +36,9 @@ class AppTextField extends StatefulWidget {
   final GlobalKey<FormFieldState<String>>? fieldKey;
   final String? titleImage;
   final bool isPreLogin;
-  final bool isFormField;
   final Color? iconColor;
   final Color? bgColor;
+  final double? iconHeight;
 
   AppTextField({
     this.controller,
@@ -68,9 +68,9 @@ class AppTextField extends StatefulWidget {
     this.fieldKey,
     this.titleImage,
     this.isPreLogin = false,
-    this.isFormField = false,
     this.iconColor,
     this.bgColor,
+    this.iconHeight = 20,
   });
 
   @override
@@ -128,7 +128,8 @@ class _AppTextFieldState extends State<AppTextField> {
                   children: [
                     Image.asset(
                       widget.titleImage!,
-                      height: 20.h,
+                      height: widget.iconHeight!.h,
+                      color: widget.iconColor,
                       opacity: widget.changeColorOnDisable!
                           ? const AlwaysStoppedAnimation(.4)
                           : null,

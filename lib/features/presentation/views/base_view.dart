@@ -7,13 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart' as bs;
-import 'package:resume_radar/utils/app_images.dart';
 
 import '../../../core/configurations/app_config.dart';
 import '../../../core/service/dependency_injection.dart';
 import '../../../flavors/flavor_banner.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_constants.dart';
 import '../../../utils/app_dimensions.dart';
+import '../../../utils/app_images.dart';
 import '../../../utils/enums.dart';
 import '../../data/datasources/shared_preference.dart';
 import '../bloc/base_bloc.dart';
@@ -21,6 +22,7 @@ import '../bloc/base_event.dart';
 import '../bloc/base_state.dart';
 import '../common/app_button.dart';
 import '../common/app_button_outline.dart';
+import '../common/beta_banner.dart';
 
 abstract class BaseView extends StatefulWidget {
   BaseView({Key? key}) : super(key: key);
@@ -44,45 +46,47 @@ abstract class BaseViewState<Page extends BaseView> extends State<Page> {
 
   @override
   Widget build(BuildContext context) {
-    return FlavorBanner(
-      child: BlocProvider<Base>(
-        create: (_) => getBloc(),
-        child: BlocListener<Base, BaseState>(
-          listener: (context, state) {
-            if (state is APILoadingState) {
-              showProgressBar();
-            } else {
-              hideProgressBar();
-              if (state is APIFailureState) {
-                showSnackBar(state.errorResponseModel.responseError ?? '',
-                    AlertType.FAIL);
-              } else if (state is AuthorizedFailureState) {
-                if (state.isSplash) {
-                  logOut();
+    return BetaBanner(
+      child: FlavorBanner(
+        child: BlocProvider<Base>(
+          create: (_) => getBloc(),
+          child: BlocListener<Base, BaseState>(
+            listener: (context, state) {
+              if (state is APILoadingState) {
+                showProgressBar();
+              } else {
+                hideProgressBar();
+                if (state is APIFailureState) {
+                  showSnackBar(state.errorResponseModel.responseError ?? '',
+                      AlertType.FAIL);
+                } else if (state is AuthorizedFailureState) {
+                  if (state.isSplash) {
+                    logOut();
 
-                  /// Navigate to login screen.
-                } else {
-                  showAppDialog(
-                    description: state.errorResponseModel.responseError,
-                    onPositiveCallback: () {
-                      logOut();
+                    ///TODO: Navigate to the login screen.
+                  } else {
+                    showAppDialog(
+                      description: state.errorResponseModel.responseError,
+                      onPositiveCallback: () {
+                        logOut();
 
-                      /// Navigate to login screen.
-                    },
-                  );
+                        ///TODO: Navigate to the login screen.
+                      },
+                    );
+                  }
                 }
               }
-            }
-          },
-          child: Listener(
-            child: Container(
-                margin: EdgeInsets.only(bottom: Platform.isIOS ? 5.h : 0),
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                  },
-                  child: buildView(context),
-                )),
+            },
+            child: Listener(
+              child: Container(
+                  margin: EdgeInsets.only(bottom: Platform.isIOS ? 5.h : 0),
+                  child: GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: buildView(context),
+                  )),
+            ),
           ),
         ),
       ),
@@ -94,6 +98,10 @@ abstract class BaseViewState<Page extends BaseView> extends State<Page> {
       if (appSharedData.hasAppToken()) {
         appSharedData.clearAppToken();
       }
+      if (appSharedData.hasPushToken()) {
+        appSharedData.clearPushToken();
+      }
+      AppConstants.IS_USER_LOGGED = false;
     });
   }
 
@@ -284,7 +292,7 @@ abstract class BaseViewState<Page extends BaseView> extends State<Page> {
                         children: [
                           Container(
                             color: Colors.transparent,
-                            child: SpinKitFadingFour(
+                            child: const SpinKitFadingFour(
                               color: AppColors.primaryGreen,
                             ),
                           ),

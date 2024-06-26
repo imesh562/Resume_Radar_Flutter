@@ -1,73 +1,65 @@
+import 'dart:io';
+import 'dart:ui';
+
+import 'package:another_flushbar/flushbar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:resume_radar/utils/app_images.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dimensions.dart';
-import '../../../utils/app_images.dart';
+import '../../../utils/enums.dart';
 
-class AppDatePicker extends StatefulWidget {
+class AppAttachmentField extends StatefulWidget {
   final String? hint;
   final String? helpText;
-  String? Function(String?)? validator;
-  final bool? isEnable;
+  final String? Function(String?)? validator;
+  final bool isEnable;
   final bool? isRequired;
-  final bool? showIcon;
-  final bool? showClear;
-  final Function()? onClear;
   final String? label;
-  final String? titleImage;
-  final String? format;
-  final DateTime? initialValue;
-  final DateTime? lastDate;
-  final DateTime? firstDate;
-  final Function(DateTime?)? onSelect;
+  final String? answer;
+  final String? keyData;
+  final Function(File?, String?)? onChange;
   final GlobalKey<FormFieldState<String>>? fieldKey;
+  final VoidCallback? onAttachmentTap;
   final Color? iconColor;
   final Color? bgColor;
 
-  AppDatePicker({
+  const AppAttachmentField({
     this.hint,
     this.helpText,
-    this.label,
-    this.titleImage,
-    this.format,
-    this.isRequired = false,
-    this.validator,
-    this.onSelect,
-    this.initialValue,
     this.isEnable = true,
-    this.showIcon = true,
-    this.showClear = false,
-    this.lastDate,
-    this.firstDate,
+    this.isRequired = false,
+    this.label,
+    this.validator,
+    this.onChange,
     this.fieldKey,
+    this.answer,
+    this.keyData,
+    this.onAttachmentTap,
     this.iconColor,
     this.bgColor,
-    this.onClear,
   });
 
   @override
-  State<AppDatePicker> createState() => _AppDatePickerState();
+  State<AppAttachmentField> createState() => _AppAttachmentFieldState();
 }
 
-class _AppDatePickerState extends State<AppDatePicker> {
-  TextEditingController? _controller;
-  DateTime? selectedDate;
+class _AppAttachmentFieldState extends State<AppAttachmentField> {
+  File? selectedFile;
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialValue != null) {
-      _controller = TextEditingController(
-          text: DateFormat(widget.format != null
-                  ? getFormat(widget.format!)
-                  : 'dd/MM/yyyy')
-              .format(widget.initialValue!));
-    } else {
-      _controller = TextEditingController();
-    }
+    setState(() {
+      if (widget.answer != null && widget.answer != "null") {
+        controller.text = widget.answer!;
+      }
+    });
   }
 
   @override
@@ -80,16 +72,6 @@ class _AppDatePickerState extends State<AppDatePicker> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (widget.titleImage != null)
-                Row(
-                  children: [
-                    Image.asset(
-                      widget.titleImage!,
-                      height: 20.h,
-                    ),
-                    SizedBox(width: 4.w),
-                  ],
-                ),
               Expanded(
                 child: RichText(
                   text: TextSpan(
@@ -141,16 +123,22 @@ class _AppDatePickerState extends State<AppDatePicker> {
         ),
         Stack(
           children: [
-            GestureDetector(
-              onTap: () {
-                if (widget.isEnable!) {
-                  _selectDate(context);
+            InkWell(
+              onTap: () async {
+                if (widget.isEnable) {
+                  _pickFiles();
+                } else {
+                  if (widget.answer != null) {
+                    if (widget.onAttachmentTap != null) {
+                      widget.onAttachmentTap!();
+                    }
+                  }
                 }
               },
               child: TextFormField(
                 validator: widget.validator,
-                controller: _controller,
                 key: widget.fieldKey,
+                controller: controller,
                 enabled: false,
                 textAlignVertical: TextAlignVertical.bottom,
                 style: TextStyle(
@@ -231,19 +219,14 @@ class _AppDatePickerState extends State<AppDatePicker> {
                     fontWeight: FontWeight.w400,
                     color: AppColors.errorRed,
                   ),
-                  suffixIconConstraints: BoxConstraints(maxHeight: 28.h),
-                  suffixIcon: widget.showIcon! &&
-                          (widget.showClear == false ||
-                              _controller!.text.isEmpty)
-                      ? Padding(
-                          padding: EdgeInsets.only(right: 11.w),
-                          child: Image.asset(
-                            AppImages.icCalendar,
-                            width: 20.w,
-                            color: AppColors.lightGrey,
-                          ),
-                        )
-                      : null,
+                  suffixIconConstraints: BoxConstraints(minHeight: 22.h),
+                  suffixIcon: Padding(
+                    padding: EdgeInsets.only(right: 10.w, left: 10.w),
+                    child: SizedBox(
+                      height: 22.h,
+                      width: 20.w,
+                    ),
+                  ),
                   filled: true,
                   hintText: widget.hint,
                   hintStyle: TextStyle(
@@ -256,95 +239,162 @@ class _AppDatePickerState extends State<AppDatePicker> {
                 ),
               ),
             ),
-            if (widget.showClear != null &&
-                widget.showClear! &&
-                _controller!.text.isNotEmpty)
-              Align(
-                alignment: Alignment.centerRight,
-                child: SizedBox(
-                    height: 40.h,
-                    width: 30.w,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _controller!.clear();
-                          selectedDate = null;
-                          if (widget.onClear != null) {
-                            widget.onClear!();
-                          }
-                        });
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 11.w),
-                        child: Icon(
-                          Icons.close,
-                          size: 20.h,
+            Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                height: 40.h,
+                width: 40.w,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 10.w,
+                    right: 10.w,
+                  ),
+                  child: widget.isEnable &&
+                          selectedFile != null &&
+                          controller.text.isNotEmpty
+                      ? InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedFile = null;
+                              controller.text = '';
+                            });
+                            if (widget.onChange != null) {
+                              widget.onChange!(null, null);
+                            }
+                          },
+                          child: Icon(
+                            Icons.close,
+                            size: 20.h,
+                            color: AppColors.lightGrey,
+                          ),
+                        )
+                      : Image.asset(
+                          AppImages.icAttachment,
+                          height: 20.h,
                           color: AppColors.lightGrey,
                         ),
-                      ),
-                    )),
-              )
+                ),
+              ),
+            )
           ],
         ),
       ],
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate != null
-          ? selectedDate!
-          : widget.initialValue ?? DateTime.now(),
-      firstDate: widget.firstDate == null ? DateTime(1) : widget.firstDate!,
-      lastDate: widget.lastDate == null
-          ? DateTime.now().add(const Duration(days: 365 * 1000))
-          : widget.lastDate!,
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: AppColors.primaryGreen,
-            hintColor: AppColors.primaryGreen,
-            colorScheme: ColorScheme.light(primary: AppColors.primaryGreen),
-          ),
-          child: child!,
-        );
-      },
+  Future<void> _pickFiles() async {
+    List<PlatformFile>? _files;
+    List<String> allowedExtensions = [
+      'pdf',
+      'xlsx',
+      'xls',
+      'csv',
+      'jpg',
+      'jpeg',
+      'png',
+      'doc',
+      'docx'
+    ];
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: allowedExtensions,
     );
-    if (picked != null && picked != selectedDate) {
+    if (result != null) {
       setState(() {
-        selectedDate = picked;
-        if (selectedDate != null) {
-          _controller!.text = DateFormat(widget.format != null
-                  ? getFormat(widget.format!)
-                  : 'dd/MM/yyyy')
-              .format(selectedDate!);
-          if (widget.onSelect != null) {
-            widget.onSelect!(selectedDate!);
-          }
-        }
+        _files = result.files;
       });
-    } else {
-      if (selectedDate == null) {
-        if (widget.onSelect != null) {
-          widget.onSelect!(null);
+      for (PlatformFile file in _files!) {
+        File pickedFile = File(file.path!);
+        int size = await pickedFile.length();
+        if (size < 10485760) {
+          setState(() {
+            selectedFile = pickedFile;
+            controller.text = pickedFile.path.split('/').last;
+          });
+          if (widget.onChange != null) {
+            widget.onChange!(selectedFile, controller.text);
+          }
+        } else {
+          showSnackBar('Maximum upload size is 10MB.', AlertType.FAIL);
         }
+      }
+    } else {
+      if (selectedFile == null &&
+          controller.text.isEmpty &&
+          widget.onChange != null) {
+        widget.onChange!(null, null);
       }
     }
   }
 
-  String getFormat(String format) {
-    switch (format) {
-      case 'DD/MM/YYYY':
-        return 'dd/MM/yyyy';
-      case 'MM/DD/YYYY':
-        return 'MM/dd/yyyy';
-      case 'YYYY/DD/MM':
-        return 'yyyy/dd/MM';
-      case 'YYYY/MM/DD':
-        return 'yyyy/MM/dd';
-      default:
-        return 'dd/MM/yyyy';
+  showProgressBar() {
+    showGeneralDialog(
+        context: context,
+        barrierDismissible: false,
+        transitionBuilder: (context, a1, a2, widget) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: Transform.scale(
+              scale: a1.value,
+              child: Opacity(
+                opacity: a1.value,
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                  child: Container(
+                    alignment: FractionalOffset.center,
+                    child: Wrap(
+                      children: [
+                        Container(
+                          color: Colors.transparent,
+                          child: const SpinKitFadingFour(
+                            color: AppColors.primaryGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (BuildContext context, Animation<double> animation,
+            Animation<double> secondaryAnimation) {
+          return const SizedBox.shrink();
+        });
+  }
+
+  showSnackBar(String message, AlertType alertType) {
+    Flushbar flushBar = Flushbar(
+      duration: const Duration(seconds: 2),
+      message: message,
+      messageColor: AppColors.colorWhite,
+      icon: alertType == AlertType.FAIL
+          ? Image.asset(
+              AppImages.icErrorRounded,
+              height: 24.h,
+            )
+          : alertType == AlertType.SUCCESS
+              ? Image.asset(
+                  AppImages.icSuccessRounded,
+                  height: 24.h,
+                )
+              : Image.asset(
+                  AppImages.icWarningRounded,
+                  height: 24.h,
+                ),
+      backgroundColor: alertType == AlertType.FAIL
+          ? AppColors.errorRed
+          : alertType == AlertType.SUCCESS
+              ? AppColors.waitingTimeColor
+              : AppColors.warningColor,
+    );
+    if (!flushBar.isAppearing() &&
+        !flushBar.isShowing() &&
+        !flushBar.isHiding()) {
+      flushBar.show(context);
     }
   }
 }
