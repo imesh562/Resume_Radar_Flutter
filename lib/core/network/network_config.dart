@@ -5,19 +5,19 @@ const RECEIVE_TIMEOUT = 60 * 1000;
 
 class IPAddress {
   /// DEV
-  static const String DEV = 'api-dev-refresh.nezt.app/';
+  static const String DEV = '127.0.0.1:5000/';
 
   /// STAGING
-  static const String STG = 'api-qa-refresh.nezt.app/';
+  static const String STG = '127.0.0.1:5000/';
 
   /// PRODUCTION
-  static const String PROD = 'api-sandbox-refresh.nezt.app/';
+  static const String PROD = '127.0.0.1:5000/';
 }
 
 class ServerProtocol {
-  static const String DEV = 'https://';
-  static const String STG = 'https://';
-  static const String PROD = 'https://';
+  static const String DEV = 'http://';
+  static const String STG = 'http://';
+  static const String PROD = 'http://';
 }
 
 class NetworkConfig {

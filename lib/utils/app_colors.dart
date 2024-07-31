@@ -23,4 +23,8 @@ class AppColors {
   static const Color warningColor = Color(0xFFD28020);
   static const Color darkGrey = Color(0xFF525252);
   static const Color declinedFillColor = Color(0xFFEF5600);
+  static const Color mainGradient1 = Color(0xFFFF5BE5);
+  static const Color mainGradient2 = Color(0xFFFFBA52);
+  static const Color loginButtonShadow = Color(0xFFA60D4D);
+  static const Color disableButtonColor = Color(0xFFB4B4B4);
 }
