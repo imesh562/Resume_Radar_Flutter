@@ -1,4 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
+import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../error/failures.dart';
 import '../../data/models/requests/login_request.dart';
@@ -23,4 +27,10 @@ abstract class Repository {
       VerifyOtpRequest verifyOtpRequest);
 
   Future<Either<Failure, LogOutResponse>> logOutAPI();
+
+  Future<Either<Failure, CheckEmailResponse>> checkEmailAPI(
+      CheckEmailRequest checkEmailRequest);
+
+  Future<Either<Failure, UserRegisterResponse>> userRegisterAPI(
+      UserRegisterRequest userRegisterRequest);
 }

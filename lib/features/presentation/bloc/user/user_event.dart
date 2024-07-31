@@ -47,3 +47,17 @@ class VerifyOtpUserEvent extends UserEvent {
 }
 
 class LogOutEvent extends UserEvent {}
+
+class UserRegisterEvent extends UserEvent {
+  final String email;
+  final String password;
+  final String firstName;
+  final String lastName;
+
+  UserRegisterEvent({
+    required this.email,
+    required this.password,
+    required this.firstName,
+    required this.lastName,
+  });
+}

@@ -1,4 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
+import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../core/network/network_info.dart';
 import '../../../error/exceptions.dart';
@@ -138,6 +142,62 @@ class RepositoryImpl implements Repository {
     if (await networkInfo.isConnected) {
       try {
         final response = await remoteDataSource.logOutAPI();
+        return Right(response);
+      } on ServerException catch (ex) {
+        return Left(ServerFailure(ex.errorResponseModel));
+      } on UnAuthorizedException catch (ex) {
+        return Left(AuthorizedFailure(ex.errorResponseModel));
+      } on DioException catch (e) {
+        return Left(ServerFailure(e.errorResponseModel));
+      } on Exception {
+        return Left(
+          ServerFailure(
+            ErrorResponseModel(
+                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
+                responseCode: ''),
+          ),
+        );
+      }
+    } else {
+      return Left(ConnectionFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, CheckEmailResponse>> checkEmailAPI(
+      CheckEmailRequest checkEmailRequest) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response =
+            await remoteDataSource.checkEmailAPI(checkEmailRequest);
+        return Right(response);
+      } on ServerException catch (ex) {
+        return Left(ServerFailure(ex.errorResponseModel));
+      } on UnAuthorizedException catch (ex) {
+        return Left(AuthorizedFailure(ex.errorResponseModel));
+      } on DioException catch (e) {
+        return Left(ServerFailure(e.errorResponseModel));
+      } on Exception {
+        return Left(
+          ServerFailure(
+            ErrorResponseModel(
+                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
+                responseCode: ''),
+          ),
+        );
+      }
+    } else {
+      return Left(ConnectionFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserRegisterResponse>> userRegisterAPI(
+      UserRegisterRequest userRegisterRequest) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response =
+            await remoteDataSource.registerUserAPI(userRegisterRequest);
         return Right(response);
       } on ServerException catch (ex) {
         return Left(ServerFailure(ex.errorResponseModel));

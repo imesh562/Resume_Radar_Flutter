@@ -15,4 +15,5 @@ class AppImages {
   static const String icLock = 'images/png/ic_lock.png';
   static const String icEyeView = 'images/png/ic_eye_view.png';
   static const String icEyeHide = 'images/png/ic_eye_hide.png';
+  static const String imgSuccess = 'images/png/img_success.png';
 }

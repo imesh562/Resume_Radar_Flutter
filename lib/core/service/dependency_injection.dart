@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:resume_radar/features/presentation/bloc/otp/otp_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/data/datasources/remote_data_source.dart';
@@ -45,5 +46,9 @@ Future<void> setupLocator() async {
 
   injection.registerFactory(
     () => UserBloc(appSharedData: injection(), repository: injection()),
+  );
+
+  injection.registerFactory(
+    () => OtpBloc(appSharedData: injection(), repository: injection()),
   );
 }

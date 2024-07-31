@@ -9,8 +9,7 @@ import '../../../../utils/app_constants.dart';
 import '../../../data/datasources/shared_preference.dart';
 import '../../../data/models/common/common_error_response.dart';
 import '../../../data/models/requests/login_request.dart';
-import '../../../data/models/requests/send_otp_request.dart';
-import '../../../data/models/requests/verify_otp_request.dart';
+import '../../../data/models/requests/user_register_request.dart';
 import '../../../data/models/responses/auth_user_response.dart';
 import '../../../domain/repositories/repository.dart';
 import '../base_bloc.dart';
@@ -29,9 +28,8 @@ class UserBloc extends Base<UserEvent, BaseState<UserState>> {
   }) : super(UserInitial()) {
     on<UserLoginEvent>(_userLogin);
     on<AuthUserEvent>(_authUser);
-    on<SendOtpUserEvent>(_sendOtp);
-    on<VerifyOtpUserEvent>(_verifyOtp);
     on<LogOutEvent>(_logOut);
+    on<UserRegisterEvent>(_userRegister);
   }
 
   Future<void> _userLogin(
@@ -109,66 +107,6 @@ class UserBloc extends Base<UserEvent, BaseState<UserState>> {
     }));
   }
 
-  Future<void> _sendOtp(
-      SendOtpUserEvent event, Emitter<BaseState<UserState>> emit) async {
-    emit(APILoadingState());
-    final result = await repository.sendOtpRequest(
-      SendOtpRequest(
-        email: event.email,
-      ),
-    );
-    emit(result.fold((l) {
-      if (l is ServerFailure) {
-        return APIFailureState(errorResponseModel: l.errorResponse);
-      } else if (l is AuthorizedFailure) {
-        return AuthorizedFailureState(errorResponseModel: l.errorResponse);
-      } else {
-        return APIFailureState(
-            errorResponseModel: ErrorResponseModel(
-                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
-                responseCode: ''));
-      }
-    }, (r) {
-      if (r.success) {
-        return SendOtpSuccessUserState(
-          isSent: r.data!.isSent!,
-          message: r.message ?? '',
-        );
-      } else {
-        return APIFailureState(
-            errorResponseModel:
-                ErrorResponseModel(responseError: r.message, responseCode: ''));
-      }
-    }));
-  }
-
-  Future<void> _verifyOtp(
-      VerifyOtpUserEvent event, Emitter<BaseState<UserState>> emit) async {
-    emit(APILoadingState());
-    final result = await repository.verifyOtpRequest(VerifyOtpRequest(
-      email: event.email,
-      otp: event.otp,
-    ));
-    emit(result.fold((l) {
-      if (l is ServerFailure) {
-        return APIFailureState(errorResponseModel: l.errorResponse);
-      } else if (l is AuthorizedFailure) {
-        return AuthorizedFailureState(errorResponseModel: l.errorResponse);
-      } else {
-        return APIFailureState(
-            errorResponseModel: ErrorResponseModel(
-                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
-                responseCode: ''));
-      }
-    }, (r) {
-      if (r.success) {
-        return VerifyOtpSuccessUserState();
-      } else {
-        return VerifyOtpFailedUserState(message: r.message ?? '');
-      }
-    }));
-  }
-
   Future<void> _logOut(
       LogOutEvent event, Emitter<BaseState<UserState>> emit) async {
     emit(APILoadingState());
@@ -187,6 +125,37 @@ class UserBloc extends Base<UserEvent, BaseState<UserState>> {
     }, (r) {
       if (r.success) {
         return LogOutSuccessState();
+      } else {
+        return APIFailureState(
+            errorResponseModel:
+                ErrorResponseModel(responseError: r.message, responseCode: ''));
+      }
+    }));
+  }
+
+  Future<void> _userRegister(
+      UserRegisterEvent event, Emitter<BaseState<UserState>> emit) async {
+    emit(APILoadingState());
+    final result = await repository.userRegisterAPI(UserRegisterRequest(
+      email: event.email,
+      password: event.password,
+      firstName: event.firstName,
+      lastName: event.lastName,
+    ));
+    emit(result.fold((l) {
+      if (l is ServerFailure) {
+        return APIFailureState(errorResponseModel: l.errorResponse);
+      } else if (l is AuthorizedFailure) {
+        return AuthorizedFailureState(errorResponseModel: l.errorResponse);
+      } else {
+        return APIFailureState(
+            errorResponseModel: ErrorResponseModel(
+                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
+                responseCode: ''));
+      }
+    }, (r) {
+      if (r.success) {
+        return UserRegisterSuccessState();
       } else {
         return APIFailureState(
             errorResponseModel:

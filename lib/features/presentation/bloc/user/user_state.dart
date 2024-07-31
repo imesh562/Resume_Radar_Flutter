@@ -32,3 +32,5 @@ class VerifyOtpFailedUserState extends UserState {
 }
 
 class LogOutSuccessState extends UserState {}
+
+class UserRegisterSuccessState extends UserState {}

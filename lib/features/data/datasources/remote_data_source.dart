@@ -1,6 +1,10 @@
 import 'dart:core';
 
 import 'package:resume_radar/features/data/datasources/shared_preference.dart';
+import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
+import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../core/network/api_helper.dart';
 import '../models/requests/login_request.dart';
@@ -22,6 +26,11 @@ abstract class RemoteDataSource {
   Future<VerifyOtpResponse> verifyOtpRequest(VerifyOtpRequest verifyOtpRequest);
 
   Future<LogOutResponse> logOutAPI();
+
+  Future<UserRegisterResponse> registerUserAPI(
+      UserRegisterRequest userRegisterRequest);
+
+  Future<CheckEmailResponse> checkEmailAPI(CheckEmailRequest checkEmailRequest);
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -91,6 +100,34 @@ class RemoteDataSourceImpl implements RemoteDataSource {
         "logout",
       );
       return LogOutResponse.fromJson(response.data);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CheckEmailResponse> checkEmailAPI(
+      CheckEmailRequest checkEmailRequest) async {
+    try {
+      final response = await apiHelper.post(
+        "check_email",
+        body: checkEmailRequest.toJson(),
+      );
+      return CheckEmailResponse.fromJson(response.data);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserRegisterResponse> registerUserAPI(
+      UserRegisterRequest userRegisterRequest) async {
+    try {
+      final response = await apiHelper.post(
+        "register",
+        body: userRegisterRequest.toJson(),
+      );
+      return UserRegisterResponse.fromJson(response.data);
     } on Exception {
       rethrow;
     }

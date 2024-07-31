@@ -5,13 +5,13 @@ const RECEIVE_TIMEOUT = 60 * 1000;
 
 class IPAddress {
   /// DEV
-  static const String DEV = '127.0.0.1:5000/';
+  static const String DEV = '10.0.2.2:5000/';
 
   /// STAGING
-  static const String STG = '127.0.0.1:5000/';
+  static const String STG = '10.0.2.2:5000/';
 
   /// PRODUCTION
-  static const String PROD = '127.0.0.1:5000/';
+  static const String PROD = '10.0.2.2:5000/';
 }
 
 class ServerProtocol {

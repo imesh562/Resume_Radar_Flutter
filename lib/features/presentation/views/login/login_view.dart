@@ -7,9 +7,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:resume_radar/features/presentation/common/app_button_outline.dart';
 import 'package:resume_radar/utils/app_dimensions.dart';
 import 'package:resume_radar/utils/app_images.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
@@ -115,7 +115,7 @@ class _SplashViewState extends BaseViewState<LoginView> {
                     SizedBox(height: 142.h),
                     Image.asset(
                       AppImages.appIcon,
-                      height: 39.h,
+                      height: 60.h,
                     ),
                     SizedBox(height: 14.05.h),
                     Text(
@@ -232,48 +232,13 @@ class _SplashViewState extends BaseViewState<LoginView> {
                             );
                           }
                         }),
-                    const Spacer(),
-                    Text(
-                      '© ${DateTime.now().year} Neztdo Corporation',
-                      style: TextStyle(
-                        color: AppColors.lightGrey,
-                        fontSize: AppDimensions.kFontSize12,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    SizedBox(height: 15.h),
+                    AppButtonOutline(
+                      buttonText: 'Sign Up',
+                      onTapButton: () {
+                        Navigator.pushNamed(context, Routes.kSignUpStep1);
+                      },
                     ),
-                    SizedBox(height: 27.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            ///TODO: Add the link.
-                          },
-                          child: Text(
-                            '•  Terms & Conditions',
-                            style: TextStyle(
-                              color: AppColors.lightGrey,
-                              fontSize: AppDimensions.kFontSize10,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            ///TODO: Add the link.
-                          },
-                          child: Text(
-                            '•  Privacy Policy',
-                            style: TextStyle(
-                              color: AppColors.lightGrey,
-                              fontSize: AppDimensions.kFontSize10,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 30.h)
                   ],
                 ),
               ),
@@ -290,12 +255,6 @@ class _SplashViewState extends BaseViewState<LoginView> {
       return true;
     } else {
       return false;
-    }
-  }
-
-  Future<void> _launchUrl(url) async {
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
     }
   }
 

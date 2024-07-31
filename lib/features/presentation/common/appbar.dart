@@ -4,13 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dimensions.dart';
 
-class NeztdoAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ResumeRadarAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool isGoBackVisible;
   final bool isPreLogin;
   final VoidCallback? onBackPressed;
 
-  NeztdoAppBar({
+  ResumeRadarAppBar({
     this.title = '',
     this.isGoBackVisible = true,
     this.isPreLogin = false,
