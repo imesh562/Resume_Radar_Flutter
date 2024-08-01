@@ -16,4 +16,8 @@ class AppImages {
   static const String icEyeView = 'images/png/ic_eye_view.png';
   static const String icEyeHide = 'images/png/ic_eye_hide.png';
   static const String imgSuccess = 'images/png/img_success.png';
+  static const String icInterview = 'images/png/ic_interview.png';
+  static const String imgResumeRadar = 'images/png/img_resume_radar.png';
+  static const String icLogout = 'images/png/ic_logout.png';
+  static const String icQuiz = 'images/png/ic_quiz.png';
 }

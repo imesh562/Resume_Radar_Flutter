@@ -64,7 +64,7 @@ class ResumeRadarAppBar extends StatelessWidget implements PreferredSizeWidget {
                   title,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: AppDimensions.kFontSize14,
+                    fontSize: AppDimensions.kFontSize18,
                     color: AppColors.primaryGreen,
                   ),
                 ),

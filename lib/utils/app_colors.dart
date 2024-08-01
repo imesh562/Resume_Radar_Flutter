@@ -28,4 +28,5 @@ class AppColors {
   static const Color loginButtonShadow = Color(0xFFA60D4D);
   static const Color disableButtonColor = Color(0xFFB4B4B4);
   static const Color settingsTextColor = Color(0xFF424242);
+  static const Color logOutColor = Color(0xFF1176DC);
 }
