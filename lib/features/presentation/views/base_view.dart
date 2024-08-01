@@ -16,6 +16,7 @@ import '../../../utils/app_constants.dart';
 import '../../../utils/app_dimensions.dart';
 import '../../../utils/app_images.dart';
 import '../../../utils/enums.dart';
+import '../../../utils/navigation_routes.dart';
 import '../../data/datasources/shared_preference.dart';
 import '../bloc/base_bloc.dart';
 import '../bloc/base_event.dart';
@@ -62,15 +63,15 @@ abstract class BaseViewState<Page extends BaseView> extends State<Page> {
                 } else if (state is AuthorizedFailureState) {
                   if (state.isSplash) {
                     logOut();
-
-                    ///TODO: Navigate to the login screen.
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, Routes.kLoginView, (route) => false);
                   } else {
                     showAppDialog(
                       description: state.errorResponseModel.responseError,
                       onPositiveCallback: () {
                         logOut();
-
-                        ///TODO: Navigate to the login screen.
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Routes.kLoginView, (route) => false);
                       },
                     );
                   }
