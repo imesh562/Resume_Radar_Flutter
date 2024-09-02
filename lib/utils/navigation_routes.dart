@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:resume_radar/features/presentation/views/sign_up/sign_up_step1.dart';
+import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../features/presentation/views/dashboard/dashboard_view.dart';
 import '../features/presentation/views/login/login_view.dart';
+import '../features/presentation/views/recommendations_&_other/recommendations_&_other_info_view.dart';
+import '../features/presentation/views/resume_analyzer/resume_analyzer_view.dart';
 import '../features/presentation/views/sign_up/sign_up_step2.dart';
 import '../features/presentation/views/sign_up/sign_up_step3.dart';
 import '../features/presentation/views/splash/splash_view.dart';
@@ -17,6 +20,9 @@ class Routes {
   static const String kSignUpStep1 = "kSignUpStep1";
   static const String kSignUpStep2 = "kSignUpStep2";
   static const String kSignUpStep3 = "kSignUpStep3";
+  static const String kResumeAnalyzerView = "kResumeAnalyzerView";
+  static const String kRecommendationAndOtherInfoView =
+      "kRecommendationAndOtherInfoView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -48,6 +54,15 @@ class Routes {
         return PageTransition(
             child: SignUpStep3(
               signUpStep3Args: settings.arguments as SignUpStep3Args,
+            ),
+            type: PageTransitionType.fade);
+      case Routes.kResumeAnalyzerView:
+        return PageTransition(
+            child: ResumeAnalyzerView(), type: PageTransitionType.fade);
+      case Routes.kRecommendationAndOtherInfoView:
+        return PageTransition(
+            child: RecommendationAndOtherInfoView(
+              resumeData: settings.arguments as ParseResumeModel,
             ),
             type: PageTransitionType.fade);
       default:

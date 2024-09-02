@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:resume_radar/app/resume_radar_app.dart';
 import 'package:resume_radar/utils/enums.dart';
+import 'package:sharpapi_flutter_client/sharpapi_flutter_client.dart';
 
 import '../core/configurations/app_config.dart';
 import '../core/service/dependency_injection.dart' as di;
@@ -20,6 +21,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> main() async {
+  SharpApiConfigs.init(
+    apiKey: 'V6QagNCLUbR2sgGTwPjvqVlKXwfOB7jDgbjTemB0',
+  );
   FlavorConfig(
       flavor: Flavor.DEV, color: Colors.black38, flavorValues: FlavorValues());
 

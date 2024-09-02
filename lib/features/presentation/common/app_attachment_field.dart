@@ -286,14 +286,9 @@ class _AppAttachmentFieldState extends State<AppAttachmentField> {
     List<PlatformFile>? _files;
     List<String> allowedExtensions = [
       'pdf',
-      'xlsx',
-      'xls',
-      'csv',
-      'jpg',
-      'jpeg',
-      'png',
       'doc',
-      'docx'
+      'docx',
+      'txt',
     ];
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,

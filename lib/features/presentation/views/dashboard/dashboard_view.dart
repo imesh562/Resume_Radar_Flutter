@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:resume_radar/features/presentation/common/appbar.dart';
 import 'package:resume_radar/utils/app_images.dart';
+import 'package:resume_radar/utils/navigation_routes.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
@@ -16,10 +17,10 @@ import 'custom/main_menu_item.dart';
 class DashboardView extends BaseView {
   DashboardView({super.key});
   @override
-  State<DashboardView> createState() => _NotificationsViewState();
+  State<DashboardView> createState() => _DashboardViewState();
 }
 
-class _NotificationsViewState extends BaseViewState<DashboardView> {
+class _DashboardViewState extends BaseViewState<DashboardView> {
   var bloc = injection<UserBloc>();
 
   @override
@@ -78,7 +79,10 @@ class _NotificationsViewState extends BaseViewState<DashboardView> {
                           SizedBox(width: 15.h),
                           Expanded(
                             child: MainMenuItem(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, Routes.kResumeAnalyzerView);
+                              },
                               title: 'Resume\nAnalyzer',
                               image: AppImages.icInterview,
                             ),
