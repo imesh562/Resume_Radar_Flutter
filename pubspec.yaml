@@ -28,6 +28,7 @@ flutter:
     - animations/
     - images/svg/
     - images/png/
+    - datasets/csv/
 
 dependencies:
   flutter:
@@ -79,6 +80,7 @@ dependencies:
   change_app_package_name: ^1.2.0
   sharpapi_flutter_client: ^1.2.0
   flutter_pdfview: ^1.3.2
+  csv: ^6.0.0
 
   #Firebase
   firebase_core: ^2.14.0

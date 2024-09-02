@@ -42,7 +42,6 @@ class _ResumeAnalyzerViewState extends BaseViewState<ResumeAnalyzerView> {
     return Scaffold(
       appBar: ResumeRadarAppBar(
         title: 'Resume Analyzer',
-        isGoBackVisible: false,
       ),
       backgroundColor: AppColors.colorWhite,
       body: BlocProvider<UserBloc>(

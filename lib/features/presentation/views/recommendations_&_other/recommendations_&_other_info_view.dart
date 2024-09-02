@@ -1,4 +1,6 @@
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:resume_radar/features/presentation/bloc/user/user_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../domain/entities/common/course_entity.dart';
 import '../../bloc/base_bloc.dart';
 import '../../bloc/base_event.dart';
 import '../../bloc/base_state.dart';
@@ -29,13 +32,22 @@ class _RecommendationAndOtherInfoViewState
   var bloc = injection<UserBloc>();
   double overallScore = 0;
   List<String> improvements = [];
+  List<Course> courses = [];
+  List<Course> recommendations = [];
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    List<Course> coursesData = await loadCoursesFromCsv();
     setState(() {
       overallScore = calculateOverallScore(widget.resumeData);
       improvements.addAll(generateResumeImprovements(widget.resumeData));
+      courses.addAll(coursesData);
+      recommendations.addAll(recommendCourses(widget.resumeData, courses));
     });
   }
 
@@ -129,6 +141,63 @@ class _RecommendationAndOtherInfoViewState
                             ),
                           ),
                         ),
+                  Text(
+                    'Recommended Courses',
+                    style: TextStyle(
+                      fontSize: AppDimensions.kFontSize20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.matteBlack,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  recommendations.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: recommendations.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final course = recommendations[index];
+                            return Card(
+                              elevation: 3,
+                              child: ListTile(
+                                title: Text(
+                                  course.courseTitle,
+                                  style: TextStyle(
+                                    fontSize: AppDimensions.kFontSize16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.matteBlack,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Subscribers: ${course.numSubscribers}\nSubject: ${course.subject}',
+                                  style: TextStyle(
+                                    fontSize: AppDimensions.kFontSize14,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.waitingTimeColor,
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.arrow_forward,
+                                  color: AppColors.primaryGreen,
+                                  size: 30.h,
+                                ),
+                                onTap: () {},
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            'No recommendations available at the moment.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: AppDimensions.kFontSize16,
+                              color: AppColors.waitingTimeColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                  SizedBox(height: 40.h),
                 ],
               ),
             ),
@@ -181,14 +250,12 @@ class _RecommendationAndOtherInfoViewState
   List<String> generateResumeImprovements(ParseResumeModel resume) {
     List<String> improvements = [];
 
-    // Check Education
     if (resume.educationQualifications == null ||
         resume.educationQualifications!.length < 2) {
       improvements.add(
           'Consider adding more educational qualifications or pursuing higher education.');
     }
 
-    // Check Positions
     if (resume.positions == null || resume.positions!.length < 2) {
       improvements.add(
           'Gain more work experience or update the resume with more recent positions.');
@@ -206,28 +273,24 @@ class _RecommendationAndOtherInfoViewState
       }
     }
 
-    // Check Certifications
     if (resume.candidateCoursesAndCertifications == null ||
         resume.candidateCoursesAndCertifications!.isEmpty) {
       improvements.add(
           'Consider pursuing relevant certifications to enhance your resume.');
     }
 
-    // Check Languages
     if (resume.candidateSpokenLanguages == null ||
         resume.candidateSpokenLanguages!.length < 2) {
       improvements.add(
           'Consider learning additional languages to enhance your global employability.');
     }
 
-    // Check Honors and Awards
     if (resume.candidateHonorsAndAwards == null ||
         resume.candidateHonorsAndAwards!.isEmpty) {
       improvements.add(
           'Seek opportunities to earn honors and awards to showcase your achievements.');
     }
 
-    // Additional Checks (Optional)
     if (resume.candidatePhone == null || resume.candidatePhone!.isEmpty) {
       improvements
           .add('Ensure that your phone number is included in the resume.');
@@ -237,8 +300,50 @@ class _RecommendationAndOtherInfoViewState
           .add('Ensure that your email address is included in the resume.');
     }
 
-    // Return the list of improvements
     return improvements;
+  }
+
+  Future<List<Course>> loadCoursesFromCsv() async {
+    final rawData =
+        await rootBundle.loadString('datasets/csv/udemy_courses.csv');
+    List<List<dynamic>> csvData = const CsvToListConverter().convert(rawData);
+    List<Course> courses = csvData.map((row) => Course.fromList(row)).toList();
+    return courses;
+  }
+
+  List<Course> recommendCourses(ParseResumeModel resume, List<Course> courses,
+      {int topN = 5}) {
+    List<Course> recommendedCourses = [];
+
+    List<String> skills = [];
+    if (resume.positions != null) {
+      for (var position in resume.positions!) {
+        if (position.skills != null) {
+          skills.addAll(position.skills!);
+        }
+      }
+    }
+    if (resume.educationQualifications != null) {
+      for (var edu in resume.educationQualifications!) {
+        if (edu.specializationSubjects != null) {
+          skills.addAll(edu.specializationSubjects!.split(','));
+        }
+      }
+    }
+
+    skills = skills.map((skill) => skill.trim().toLowerCase()).toSet().toList();
+
+    for (var skill in skills) {
+      for (var course in courses) {
+        if (course.courseTitle.toLowerCase().contains(skill)) {
+          recommendedCourses.add(course);
+        }
+      }
+    }
+
+    recommendedCourses
+        .sort((a, b) => b.numSubscribers.compareTo(a.numSubscribers));
+    return recommendedCourses.take(topN).toList();
   }
 
   @override
