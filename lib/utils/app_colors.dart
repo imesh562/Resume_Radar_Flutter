@@ -29,4 +29,5 @@ class AppColors {
   static const Color disableButtonColor = Color(0xFFB4B4B4);
   static const Color settingsTextColor = Color(0xFF424242);
   static const Color logOutColor = Color(0xFF1176DC);
+  static const Color secondaryBlue = Color(0xff2557e8);
 }

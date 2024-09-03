@@ -71,7 +71,10 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
                         children: [
                           Expanded(
                             child: MainMenuItem(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, Routes.kMockInterviewCvScanView);
+                              },
                               title: 'Mock\nInterview',
                               image: AppImages.icInterview,
                             ),
@@ -84,7 +87,8 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
                                     context, Routes.kResumeAnalyzerView);
                               },
                               title: 'Resume\nAnalyzer',
-                              image: AppImages.icInterview,
+                              image: AppImages.icCvScan,
+                              imageColor: AppColors.secondaryBlue,
                             ),
                           ),
                         ],

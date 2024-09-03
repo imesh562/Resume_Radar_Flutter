@@ -20,4 +20,5 @@ class AppImages {
   static const String imgResumeRadar = 'images/png/img_resume_radar.png';
   static const String icLogout = 'images/png/ic_logout.png';
   static const String icQuiz = 'images/png/ic_quiz.png';
+  static const String icCvScan = 'images/png/ic_cv_scan.png';
 }

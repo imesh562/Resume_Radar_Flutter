@@ -5,6 +5,8 @@ import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../features/presentation/views/dashboard/dashboard_view.dart';
 import '../features/presentation/views/login/login_view.dart';
+import '../features/presentation/views/mock_interview_cv_scan/mock_interview_cv_scan_view.dart';
+import '../features/presentation/views/mock_interview_view/mock_interview_view.dart';
 import '../features/presentation/views/recommendations_&_other/recommendations_&_other_info_view.dart';
 import '../features/presentation/views/resume_analyzer/resume_analyzer_view.dart';
 import '../features/presentation/views/sign_up/sign_up_step2.dart';
@@ -23,6 +25,8 @@ class Routes {
   static const String kResumeAnalyzerView = "kResumeAnalyzerView";
   static const String kRecommendationAndOtherInfoView =
       "kRecommendationAndOtherInfoView";
+  static const String kMockInterviewCvScanView = "kMockInterviewCvScanView";
+  static const String kMockInterviewView = "kMockInterviewView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -62,6 +66,15 @@ class Routes {
       case Routes.kRecommendationAndOtherInfoView:
         return PageTransition(
             child: RecommendationAndOtherInfoView(
+              resumeData: settings.arguments as ParseResumeModel,
+            ),
+            type: PageTransitionType.fade);
+      case Routes.kMockInterviewCvScanView:
+        return PageTransition(
+            child: MockInterviewCvScanView(), type: PageTransitionType.fade);
+      case Routes.kMockInterviewView:
+        return PageTransition(
+            child: MockInterviewView(
               resumeData: settings.arguments as ParseResumeModel,
             ),
             type: PageTransitionType.fade);

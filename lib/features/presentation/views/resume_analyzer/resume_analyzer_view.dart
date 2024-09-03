@@ -92,6 +92,9 @@ class _ResumeAnalyzerViewState extends BaseViewState<ResumeAnalyzerView> {
                     ),
                   AppButton(
                     buttonText: 'Upload File',
+                    buttonType: resume != null
+                        ? ButtonType.ENABLED
+                        : ButtonType.DISABLED,
                     onTapButton: () {
                       showProgressBar();
                       if (resume != null) {
