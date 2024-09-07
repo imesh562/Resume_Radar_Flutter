@@ -96,7 +96,7 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   @override
   Future<LogOutResponse> logOutAPI() async {
     try {
-      final response = await apiHelper.get(
+      final response = await apiHelper.post(
         "logout",
       );
       return LogOutResponse.fromJson(response.data);

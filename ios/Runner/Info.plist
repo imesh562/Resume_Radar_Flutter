@@ -26,6 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FDAllFilesDownloadedMessage</key>
 	<string>All files have been downloaded</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>This app needs access to your microphone for speech recognition.</string>
 	<key>FDMaximumConcurrentTasks</key>
 	<integer>5</integer>
 	<key>LSRequiresIPhoneOS</key>

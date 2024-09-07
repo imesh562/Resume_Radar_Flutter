@@ -99,6 +99,9 @@ abstract class BaseViewState<Page extends BaseView> extends State<Page> {
       if (appSharedData.hasAppToken()) {
         appSharedData.clearAppToken();
       }
+      if (appSharedData.hasAppUser()) {
+        appSharedData.clearAppUser();
+      }
       if (appSharedData.hasPushToken()) {
         appSharedData.clearPushToken();
       }

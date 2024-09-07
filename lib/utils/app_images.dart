@@ -21,4 +21,5 @@ class AppImages {
   static const String icLogout = 'images/png/ic_logout.png';
   static const String icQuiz = 'images/png/ic_quiz.png';
   static const String icCvScan = 'images/png/ic_cv_scan.png';
+  static const String icAiLogo = 'images/png/ic_ai_logo.png';
 }

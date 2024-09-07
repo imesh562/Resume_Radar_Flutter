@@ -34,7 +34,13 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
       body: BlocProvider<UserBloc>(
         create: (_) => bloc,
         child: BlocListener<UserBloc, BaseState<UserState>>(
-          listener: (_, state) {},
+          listener: (_, state) {
+            if (state is LogOutSuccessState) {
+              logOut();
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.kLoginView, (route) => false);
+            }
+          },
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Padding(
@@ -106,7 +112,21 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
                           SizedBox(width: 15.h),
                           Expanded(
                             child: MainMenuItem(
-                              onTap: () {},
+                              onTap: () {
+                                showAppDialog(
+                                  title: 'Log Out',
+                                  description: 'Are you sure want to log out ?',
+                                  negativeButtonText: 'Cancel',
+                                  positiveButtonText: 'Log Out',
+                                  isDismissible: true,
+                                  onNegativeCallback: () {
+                                    Navigator.pop(context);
+                                  },
+                                  onPositiveCallback: () {
+                                    bloc.add(LogOutEvent());
+                                  },
+                                );
+                              },
                               title: 'Logout',
                               image: AppImages.icLogout,
                               imageColor: AppColors.logOutColor,
