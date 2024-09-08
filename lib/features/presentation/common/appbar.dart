@@ -8,12 +8,14 @@ class ResumeRadarAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool isGoBackVisible;
   final bool isPreLogin;
+  final List<Widget>? actions;
   final VoidCallback? onBackPressed;
 
   ResumeRadarAppBar({
     this.title = '',
     this.isGoBackVisible = true,
     this.isPreLogin = false,
+    this.actions,
     this.onBackPressed,
   });
   @override
@@ -73,6 +75,7 @@ class ResumeRadarAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+      actions: actions,
     );
   }
 

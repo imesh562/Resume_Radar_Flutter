@@ -84,6 +84,7 @@ dependencies:
   dash_chat_2: ^0.0.20
   flutter_gemini: ^2.0.5
   speech_to_text: ^6.6.0
+  flutter_tts: ^4.0.2
 
   #Firebase
   firebase_core: ^2.14.0

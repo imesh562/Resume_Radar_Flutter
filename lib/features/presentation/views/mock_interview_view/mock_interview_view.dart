@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:resume_radar/features/presentation/common/appbar.dart';
-import 'package:resume_radar/utils/app_images.dart';
+import 'package:resume_radar/utils/app_dimensions.dart';
 import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -35,8 +36,12 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
   List<ChatMessage> messages = [];
   final Gemini gemini = Gemini.instance;
   final TextEditingController messageController = TextEditingController();
-  SpeechToText _speechToText = SpeechToText();
+  final SpeechToText _speechToText = SpeechToText();
   OverlayEntry? _listeningOverlay;
+  final FlutterTts _flutterTts = FlutterTts();
+  bool isTtsEnabled = true;
+  bool isPlaying = false;
+  String lastResponse = '';
 
   @override
   void initState() {
@@ -51,88 +56,65 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
       geminiUser = ChatUser(
         id: '2',
         firstName: 'Gemini',
-        profileImage: AppImages.icAiLogo,
+        profileImage:
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThr7qrIazsvZwJuw-uZCtLzIjaAyVW_ZrlEQ&s',
       );
     });
+    _configureTts();
     _initSpeech();
   }
 
-  void _initSpeech() async {
-    await _speechToText.initialize();
-    setState(() {});
-  }
-
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    _showListeningOverlay(); // Show animation overlay
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    await _speechToText.stop();
-    _removeListeningOverlay(); // Hide animation overlay
-    setState(() {});
-  }
-
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      messageController.text = result.recognizedWords;
-    });
-  }
-
-  void _showListeningOverlay() {
-    if (_listeningOverlay != null) return; // Prevent duplicate overlays
-    _listeningOverlay = OverlayEntry(
-      builder: (context) => Positioned(
-        top: MediaQuery.of(context).size.height / 2 - 50,
-        left: MediaQuery.of(context).size.width / 2 - 50,
-        child: _buildListeningAnimation(),
-      ),
-    );
-    Overlay.of(context)?.insert(_listeningOverlay!);
-  }
-
-  void _removeListeningOverlay() {
-    _listeningOverlay?.remove();
-    _listeningOverlay = null;
-  }
-
-  Widget _buildListeningAnimation() {
-    return Material(
-      color: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.7),
-              shape: BoxShape.circle,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            "Listening...",
-            style: TextStyle(color: AppColors.primaryGreen, fontSize: 18),
-          ),
-        ],
-      ),
-    );
+  @override
+  void dispose() {
+    super.dispose();
+    _flutterTts.stop();
   }
 
   @override
   Widget buildView(BuildContext context) {
     return Scaffold(
       appBar: ResumeRadarAppBar(
-        title: 'Mock Interview',
+        title: '          Mock Interview',
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (String value) async {
+              if (value == 'Option 1') {
+                setState(() {
+                  isTtsEnabled = !isTtsEnabled;
+                });
+              } else {
+                if (isPlaying) {
+                  setState(() {
+                    isPlaying = false;
+                  });
+                  _flutterTts.stop();
+                } else {
+                  setState(() {
+                    isPlaying = true;
+                  });
+                  await _flutterTts.speak(lastResponse);
+                }
+              }
+            },
+            position: PopupMenuPosition.under,
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem<String>(
+                  value: 'Option 1',
+                  child: Text(
+                    isTtsEnabled ? 'Disable Voice' : 'Enable Voice',
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Option 2',
+                  child: Text(
+                    isPlaying ? 'Stop' : 'Play Last Response',
+                  ),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       backgroundColor: AppColors.colorWhite,
       body: BlocProvider<UserBloc>(
@@ -154,10 +136,10 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
                     InkWell(
                       borderRadius: BorderRadius.circular(100.r),
                       onTapDown: (_) async {
-                        _startListening(); // Start listening and show animation
+                        _startListening();
                       },
                       onTapUp: (_) {
-                        _stopListening(); // Stop listening and hide animation
+                        _stopListening();
                       },
                       child: const CircleAvatar(
                         backgroundColor: AppColors.colorTransparent,
@@ -178,37 +160,154 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
     );
   }
 
+  void _initSpeech() async {
+    await _speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    _showListeningOverlay();
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    _removeListeningOverlay();
+    setState(() {});
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      messageController.text = result.recognizedWords;
+    });
+  }
+
+  void _showListeningOverlay() {
+    if (_listeningOverlay != null) return;
+    _listeningOverlay = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).size.height / 2 - 50,
+        left: MediaQuery.of(context).size.width / 2 - 50,
+        child: _buildListeningAnimation(),
+      ),
+    );
+    Overlay.of(context).insert(_listeningOverlay!);
+  }
+
+  void _removeListeningOverlay() {
+    _listeningOverlay?.remove();
+    _listeningOverlay = null;
+  }
+
+  Widget _buildListeningAnimation() {
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 100.h,
+            height: 100.h,
+            decoration: BoxDecoration(
+              color: AppColors.colorBlack.withOpacity(0.7),
+              shape: BoxShape.circle,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(5.w),
+              child: const Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primaryGreen),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.mic,
+                      color: AppColors.primaryGreen,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            "Listening...",
+            style: TextStyle(
+              color: AppColors.primaryGreen,
+              fontSize: AppDimensions.kFontSize18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _configureTts() async {
+    await _flutterTts.setLanguage("en-US");
+    await _flutterTts.setSpeechRate(0.5);
+    await _flutterTts.setPitch(1.0);
+  }
+
   void sendMessage(ChatMessage chatMessage) {
     setState(() {
       messages = [chatMessage, ...messages];
     });
+
     try {
       String question = chatMessage.text;
-      gemini.streamGenerateContent(question).listen((event) {
-        ChatMessage? lastMessage = messages.isNotEmpty ? messages.first : null;
-        if (lastMessage != null && lastMessage.user == geminiUser) {
-          lastMessage = messages.removeAt(0);
+      String completeResponse = '';
+
+      gemini.streamGenerateContent(question).listen(
+        (event) {
           String response = event.content?.parts?.fold(
-                  "", (previous, current) => "$previous ${current.text}") ??
+                "",
+                (previous, current) => "$previous ${current.text}",
+              ) ??
               '';
-          lastMessage.text += response;
+
+          completeResponse += response;
+
+          ChatMessage? lastMessage =
+              messages.isNotEmpty ? messages.first : null;
+
+          if (lastMessage != null && lastMessage.user == geminiUser) {
+            lastMessage = messages.removeAt(0);
+            lastMessage.text += response;
+            setState(() {
+              messages = [lastMessage!, ...messages];
+            });
+          } else {
+            ChatMessage message = ChatMessage(
+              user: geminiUser!,
+              createdAt: DateTime.now(),
+              text: response,
+            );
+            setState(() {
+              messages = [message, ...messages];
+            });
+          }
+        },
+        onDone: () async {
           setState(() {
-            messages = [lastMessage!, ...messages];
+            lastResponse = completeResponse;
+            isPlaying = true;
           });
-        } else {
-          String response = event.content?.parts?.fold(
-                  "", (previous, current) => "$previous ${current.text}") ??
-              '';
-          ChatMessage message = ChatMessage(
-            user: geminiUser!,
-            createdAt: DateTime.now(),
-            text: response,
-          );
-          setState(() {
-            messages = [message, ...messages];
-          });
-        }
-      });
+          if (isTtsEnabled) {
+            await _flutterTts.speak(completeResponse);
+          }
+        },
+        onError: (e) {
+          print(e);
+        },
+      );
     } catch (e) {
       print(e);
     }
