@@ -5,6 +5,7 @@ import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:resume_radar/features/presentation/common/appbar.dart';
+import 'package:resume_radar/utils/app_constants.dart';
 import 'package:resume_radar/utils/app_dimensions.dart';
 import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -47,7 +48,8 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
   void initState() {
     super.initState();
     setState(() {
-      promptData = createResumeString(widget.resumeData);
+      promptData =
+          '${AppConstants.BASE_PROMPT}\n\n${createResumeString(widget.resumeData)}';
       currentUser = ChatUser(
         id: '1',
         firstName: appSharedData.getAppUser().firstName,
@@ -60,8 +62,18 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThr7qrIazsvZwJuw-uZCtLzIjaAyVW_ZrlEQ&s',
       );
     });
+
     _configureTts();
     _initSpeech();
+
+    sendMessage(
+      ChatMessage(
+        user: currentUser!,
+        createdAt: DateTime.now(),
+        text: promptData,
+      ),
+      displayInChat: false,
+    );
   }
 
   @override
@@ -152,7 +164,7 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
                 ),
               ],
             ),
-            onSend: sendMessage,
+            onSend: (ChatMessage message) => sendMessage(message),
             messages: messages,
           ),
         ),
@@ -256,16 +268,23 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
     await _flutterTts.setPitch(1.0);
   }
 
-  void sendMessage(ChatMessage chatMessage) {
-    setState(() {
-      messages = [chatMessage, ...messages];
-    });
+  void sendMessage(ChatMessage chatMessage, {bool displayInChat = true}) {
+    if (displayInChat) {
+      setState(() {
+        messages = [chatMessage, ...messages];
+      });
+    }
 
     try {
       String question = chatMessage.text;
       String completeResponse = '';
 
-      gemini.streamGenerateContent(question).listen(
+      String context = [
+        promptData,
+        ...messages.map((msg) => msg.text),
+      ].join('\n');
+
+      gemini.streamGenerateContent('$context\n$question').listen(
         (event) {
           String response = event.content?.parts?.fold(
                 "",
@@ -273,14 +292,14 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
               ) ??
               '';
 
-          completeResponse += response;
+          completeResponse += ' ${response.trim()}';
 
           ChatMessage? lastMessage =
               messages.isNotEmpty ? messages.first : null;
 
           if (lastMessage != null && lastMessage.user == geminiUser) {
             lastMessage = messages.removeAt(0);
-            lastMessage.text += response;
+            lastMessage.text += ' ${response.trim()}';
             setState(() {
               messages = [lastMessage!, ...messages];
             });
@@ -288,7 +307,7 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
             ChatMessage message = ChatMessage(
               user: geminiUser!,
               createdAt: DateTime.now(),
-              text: response,
+              text: response.trim(),
             );
             setState(() {
               messages = [message, ...messages];
@@ -297,11 +316,11 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
         },
         onDone: () async {
           setState(() {
-            lastResponse = completeResponse;
+            lastResponse = completeResponse.trim();
             isPlaying = true;
           });
           if (isTtsEnabled) {
-            await _flutterTts.speak(completeResponse);
+            await _flutterTts.speak(lastResponse);
           }
         },
         onError: (e) {

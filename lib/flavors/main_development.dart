@@ -24,10 +24,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   SharpApiConfigs.init(
-    apiKey: 'V6QagNCLUbR2sgGTwPjvqVlKXwfOB7jDgbjTemB0',
+    apiKey: AppConstants.SHARE_API_KEY,
   );
 
-  Gemini.init(apiKey: AppConstants.API_KEY);
+  Gemini.init(apiKey: AppConstants.GEMINI_API_KEY);
 
   FlavorConfig(
       flavor: Flavor.DEV, color: Colors.black38, flavorValues: FlavorValues());
