@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -165,7 +168,22 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
               ],
             ),
             onSend: (ChatMessage message) => sendMessage(message),
-            messages: messages,
+            messages: messages.map((e) {
+              if (e.user == geminiUser) {
+                Map<String, dynamic> responseJson = {};
+                try {
+                  responseJson = jsonDecode(
+                      e.text.replaceAll('“', '"').replaceAll('”', '"'));
+                } on Exception catch (e) {}
+                return ChatMessage(
+                  user: e.user,
+                  createdAt: e.createdAt,
+                  text: responseJson['question'] ?? '',
+                );
+              } else {
+                return e;
+              }
+            }).toList(),
           ),
         ),
       ),
@@ -291,7 +309,7 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
                 (previous, current) => "$previous ${current.text}",
               ) ??
               '';
-
+          log(response);
           completeResponse += ' ${response.trim()}';
 
           ChatMessage? lastMessage =
@@ -315,12 +333,16 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
           }
         },
         onDone: () async {
+          Map<String, dynamic> responseJson = {};
           setState(() {
             lastResponse = completeResponse.trim();
             isPlaying = true;
+            responseJson = jsonDecode(
+                lastResponse.replaceAll('“', '"').replaceAll('”', '"'));
           });
+          log(lastResponse);
           if (isTtsEnabled) {
-            await _flutterTts.speak(lastResponse);
+            await _flutterTts.speak(responseJson["question"]);
           }
         },
         onError: (e) {

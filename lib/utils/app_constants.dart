@@ -13,16 +13,16 @@ class AppConstants {
 If the Interview has not ended, the response should be just like this,
 
 {
-  "question": “Tell me a little bit about yourself and your interest in this position.” 
-  “has_ended”_: false,
+  "question": "Tell me a little bit about yourself and your interest in this position.",
+  "has_ended": false,
   "performance": null
 }
 
 If the Interview has ended, the response should be just like this,
 
 {
-  "question": “Thank you for participating for this interview” 
-  “has_ended”_: true,
+  "question": "Thank you for participating for this interview",
+  "has_ended": true,
   "performance": {
     "overall_score": 78,
     "strengths": [
