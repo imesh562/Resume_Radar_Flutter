@@ -19,12 +19,12 @@ import '../../common/appbar.dart';
 import '../base_view.dart';
 import '../login/common/login_button.dart';
 
-class SignUpStep1 extends BaseView {
+class SignUpStep1View extends BaseView {
   @override
-  State<SignUpStep1> createState() => _ResetPasswordStep1State();
+  State<SignUpStep1View> createState() => _SignUpStep1ViewState();
 }
 
-class _ResetPasswordStep1State extends BaseViewState<SignUpStep1> {
+class _SignUpStep1ViewState extends BaseViewState<SignUpStep1View> {
   var bloc = injection<OtpBloc>();
   final _emailController = TextEditingController();
   final _emailKey = GlobalKey<FormState>();

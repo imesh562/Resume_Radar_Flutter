@@ -16,6 +16,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../../utils/navigation_routes.dart';
 import '../../bloc/base_bloc.dart';
 import '../../bloc/base_event.dart';
 import '../../bloc/base_state.dart';
@@ -87,103 +88,120 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
 
   @override
   Widget buildView(BuildContext context) {
-    return Scaffold(
-      appBar: ResumeRadarAppBar(
-        title: '          Mock Interview',
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (String value) async {
-              if (value == 'Option 1') {
-                setState(() {
-                  isTtsEnabled = !isTtsEnabled;
-                });
-              } else {
-                if (isPlaying) {
+    return WillPopScope(
+      onWillPop: () async {
+        onBackHandler();
+        return false;
+      },
+      child: Scaffold(
+        appBar: ResumeRadarAppBar(
+          title: '          Mock Interview',
+          onBackPressed: () {
+            onBackHandler();
+          },
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (String value) async {
+                if (value == 'Option 1') {
                   setState(() {
-                    isPlaying = false;
+                    isTtsEnabled = !isTtsEnabled;
                   });
-                  _flutterTts.stop();
+                } else if (value == 'Option 2') {
+                  if (isPlaying) {
+                    setState(() {
+                      isPlaying = false;
+                    });
+                    _flutterTts.stop();
+                  } else {
+                    setState(() {
+                      isPlaying = true;
+                    });
+                    await _flutterTts.speak(lastResponse);
+                  }
                 } else {
-                  setState(() {
-                    isPlaying = true;
-                  });
-                  await _flutterTts.speak(lastResponse);
+                  onBackHandler();
                 }
-              }
-            },
-            position: PopupMenuPosition.under,
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: 'Option 1',
-                  child: Text(
-                    isTtsEnabled ? 'Disable Voice' : 'Enable Voice',
+              },
+              position: PopupMenuPosition.under,
+              itemBuilder: (BuildContext context) {
+                return [
+                  PopupMenuItem<String>(
+                    value: 'Option 1',
+                    child: Text(
+                      isTtsEnabled ? 'Disable Voice' : 'Enable Voice',
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'Option 2',
-                  child: Text(
-                    isPlaying ? 'Stop' : 'Play Last Response',
+                  PopupMenuItem<String>(
+                    value: 'Option 2',
+                    child: Text(
+                      isPlaying ? 'Stop' : 'Play Last Response',
+                    ),
                   ),
-                ),
-              ];
-            },
-          ),
-        ],
-      ),
-      backgroundColor: AppColors.colorWhite,
-      body: BlocProvider<UserBloc>(
-        create: (_) => bloc,
-        child: BlocListener<UserBloc, BaseState<UserState>>(
-          listener: (_, state) {},
-          child: DashChat(
-            currentUser: currentUser!,
-            messageOptions: const MessageOptions(
-              currentUserContainerColor: AppColors.colorBlack,
-              containerColor: AppColors.primaryGreen,
-              textColor: AppColors.colorWhite,
+                  const PopupMenuItem<String>(
+                    value: 'Option 3',
+                    child: Text(
+                      'Exit',
+                    ),
+                  ),
+                ];
+              },
             ),
-            inputOptions: InputOptions(
-              textController: messageController,
-              trailing: [
-                Row(
-                  children: [
-                    InkWell(
-                      borderRadius: BorderRadius.circular(100.r),
-                      onTapDown: (_) async {
-                        _startListening();
-                      },
-                      onTapUp: (_) {
-                        _stopListening();
-                      },
-                      child: const CircleAvatar(
-                        backgroundColor: AppColors.colorTransparent,
-                        child: Icon(
-                          Icons.mic,
+          ],
+        ),
+        backgroundColor: AppColors.colorWhite,
+        body: BlocProvider<UserBloc>(
+          create: (_) => bloc,
+          child: BlocListener<UserBloc, BaseState<UserState>>(
+            listener: (_, state) {},
+            child: DashChat(
+              currentUser: currentUser!,
+              messageOptions: const MessageOptions(
+                currentUserContainerColor: AppColors.colorBlack,
+                containerColor: AppColors.primaryGreen,
+                textColor: AppColors.colorWhite,
+              ),
+              inputOptions: InputOptions(
+                textController: messageController,
+                trailing: [
+                  Row(
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(100.r),
+                        onTapDown: (_) async {
+                          _startListening();
+                        },
+                        onTapUp: (_) {
+                          _stopListening();
+                        },
+                        child: const CircleAvatar(
+                          backgroundColor: AppColors.colorTransparent,
+                          child: Icon(
+                            Icons.mic,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
+              onSend: (ChatMessage message) => sendMessage(message),
+              messages: messages.map((e) {
+                if (e.user == geminiUser) {
+                  Map<String, dynamic> responseJson = {};
+                  try {
+                    responseJson = jsonDecode(
+                        e.text.replaceAll('“', '"').replaceAll('”', '"'));
+                  } on Exception catch (e) {}
+                  return ChatMessage(
+                    user: e.user,
+                    createdAt: e.createdAt,
+                    text: responseJson['question'] ?? '',
+                  );
+                } else {
+                  return e;
+                }
+              }).toList(),
             ),
-            onSend: (ChatMessage message) => sendMessage(message),
-            messages: messages.map((e) {
-              if (e.user == geminiUser) {
-                Map<String, dynamic> responseJson = {};
-                try {
-                  responseJson = jsonDecode(
-                      e.text.replaceAll('“', '"').replaceAll('”', '"'));
-                } on Exception catch (e) {}
-                return ChatMessage(
-                  user: e.user,
-                  createdAt: e.createdAt,
-                  text: responseJson['question'] ?? '',
-                );
-              } else {
-                return e;
-              }
-            }).toList(),
           ),
         ),
       ),
@@ -208,6 +226,7 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
+    print(result.recognizedWords);
     setState(() {
       messageController.text = result.recognizedWords;
     });
@@ -297,12 +316,14 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
       String question = chatMessage.text;
       String completeResponse = '';
 
-      String context = [
+      String contextData = [
         promptData,
-        ...messages.map((msg) => msg.text),
+        ...messages.reversed.map((msg) => msg.text),
       ].join('\n');
 
-      gemini.streamGenerateContent('$context\n$question').listen(
+      log(contextData);
+
+      gemini.streamGenerateContent('$contextData\n$question').listen(
         (event) {
           String response = event.content?.parts?.fold(
                 "",
@@ -336,13 +357,26 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
           Map<String, dynamic> responseJson = {};
           setState(() {
             lastResponse = completeResponse.trim();
-            isPlaying = true;
             responseJson = jsonDecode(
                 lastResponse.replaceAll('“', '"').replaceAll('”', '"'));
           });
           log(lastResponse);
-          if (isTtsEnabled) {
-            await _flutterTts.speak(responseJson["question"]);
+          if (responseJson["has_ended"] == true) {
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.kInterviewResultsView,
+              arguments: responseJson,
+            );
+          } else {
+            if (isTtsEnabled) {
+              setState(() {
+                isPlaying = true;
+              });
+              await _flutterTts.speak(responseJson["question"]);
+              setState(() {
+                isPlaying = false;
+              });
+            }
           }
         },
         onError: (e) {
@@ -420,6 +454,34 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
     }
 
     return buffer.toString();
+  }
+
+  void onBackHandler() {
+    showAppDialog(
+      title: 'Close & Exit',
+      description: 'Are you sure you want to Exit ?',
+      negativeButtonText: 'Yes, Exit',
+      positiveButtonText: 'No',
+      isDismissible: true,
+      onNegativeCallback: () {
+        setState(() {
+          isPlaying = false;
+        });
+        _flutterTts.stop();
+        sendMessage(
+          ChatMessage(
+            user: currentUser!,
+            createdAt: DateTime.now(),
+            text: AppConstants.FORCE_STOP,
+          ),
+          displayInChat: false,
+        );
+        Navigator.pop(context);
+      },
+      onPositiveCallback: () {
+        Navigator.pop(context);
+      },
+    );
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:resume_radar/features/presentation/views/sign_up/sign_up_step1.d
 import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../features/presentation/views/dashboard/dashboard_view.dart';
+import '../features/presentation/views/interview_results/interview_results_view.dart';
 import '../features/presentation/views/login/login_view.dart';
 import '../features/presentation/views/mock_interview_cv_scan/mock_interview_cv_scan_view.dart';
 import '../features/presentation/views/mock_interview_view/mock_interview_view.dart';
@@ -27,6 +28,7 @@ class Routes {
       "kRecommendationAndOtherInfoView";
   static const String kMockInterviewCvScanView = "kMockInterviewCvScanView";
   static const String kMockInterviewView = "kMockInterviewView";
+  static const String kInterviewResultsView = "kInterviewResultsView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -47,16 +49,16 @@ class Routes {
             type: PageTransitionType.fade);
       case Routes.kSignUpStep1:
         return PageTransition(
-            child: SignUpStep1(), type: PageTransitionType.fade);
+            child: SignUpStep1View(), type: PageTransitionType.fade);
       case Routes.kSignUpStep2:
         return PageTransition(
-            child: SignUpStep2(
+            child: SignUpStep2View(
               signUpStep2Args: settings.arguments as SignUpStep2Args,
             ),
             type: PageTransitionType.fade);
       case Routes.kSignUpStep3:
         return PageTransition(
-            child: SignUpStep3(
+            child: SignUpStep3View(
               signUpStep3Args: settings.arguments as SignUpStep3Args,
             ),
             type: PageTransitionType.fade);
@@ -78,6 +80,13 @@ class Routes {
               resumeData: settings.arguments as ParseResumeModel,
             ),
             type: PageTransitionType.fade);
+      case Routes.kInterviewResultsView:
+        return PageTransition(
+          child: InterviewResultsView(
+            responseJson: settings.arguments as Map<String, dynamic>,
+          ),
+          type: PageTransitionType.fade,
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(

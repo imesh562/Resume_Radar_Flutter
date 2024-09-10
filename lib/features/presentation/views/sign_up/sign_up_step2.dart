@@ -27,15 +27,15 @@ class SignUpStep2Args {
   });
 }
 
-class SignUpStep2 extends BaseView {
+class SignUpStep2View extends BaseView {
   final SignUpStep2Args signUpStep2Args;
-  SignUpStep2({required this.signUpStep2Args});
+  SignUpStep2View({required this.signUpStep2Args});
 
   @override
-  State<SignUpStep2> createState() => _ResetPasswordStep2State();
+  State<SignUpStep2View> createState() => _SignUpStep2ViewState();
 }
 
-class _ResetPasswordStep2State extends BaseViewState<SignUpStep2> {
+class _SignUpStep2ViewState extends BaseViewState<SignUpStep2View> {
   var bloc = injection<OtpBloc>();
   final _otpController = TextEditingController();
   OTPCountDown? _otpCountDown;

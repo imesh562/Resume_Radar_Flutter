@@ -8,9 +8,9 @@ class AppConstants {
   static String GEMINI_API_KEY = "AIzaSyA_eo3vsmHx9_0ekCfboYmqmhP4iqEchdI";
   static String FORCE_STOP = "a18698f1-4262-4d36-94d0-7fe06b7a1294";
   static String BASE_PROMPT =
-      """I want to simulate a 10-minute job interview for a job seeker using the data provided. Company can be anything of your choice(real or not real).At the end of the interview, I need job seeker's performance. If at any point if I send the string "a18698f1-4262-4d36-94d0-7fe06b7a1294" as a response, the interview should immediately end, and you should return the performance. From this point onward, all the data should be returned on following JSON formatted object.
+      """I want to simulate a 20-minute job interview for a job seeker using the data provided. Ask technical questions and also questions about the job seeker's data provided in the first message. The company can be anything of your choice(real or not real). At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. If at any point I send the string "a18698f1-4262-4d36-94d0-7fe06b7a1294" as a response, the interview should immediately end, and you should return the performance. From this point onward, all the data should be returned on the following JSON formatted object.
 
-If the Interview has not ended, the response should be just like this,
+If the Interview has not ended, the response structure should be like this and questions can vary.
 
 {
   "question": "Tell me a little bit about yourself and your interest in this position.",
@@ -18,10 +18,10 @@ If the Interview has not ended, the response should be just like this,
   "performance": null
 }
 
-If the Interview has ended, the response should be just like this,
+At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. The results structure should be like this,  
 
 {
-  "question": "Thank you for participating for this interview",
+  "question": "Thank you for participating in this interview",
   "has_ended": true,
   "performance": {
     "overall_score": 78,
@@ -41,5 +41,5 @@ If the Interview has ended, the response should be just like this,
   }
 }
 
-Other than these json strings, There shouldn’t bet be any extra details. The interview should be designed to last approximately 10 minutes (though not literally 10 minutes in real-time). Again please don't send any extra details other than JSON object. Also, don’t add the role name to the questions. Again just questions. These are the Job Seekers resume data,""";
+Other than these JSON strings, There shouldn’t bet be any extra details. The interview should be designed to last approximately 20 minutes (though not literally 10 minutes in real-time, At least ask about 10 questions). Again please don't send any extra details other than JSON object. Also, don’t add the role name to the questions. Again just questions. These are the Job Seekers resume data,""";
 }

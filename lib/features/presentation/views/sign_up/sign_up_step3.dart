@@ -28,15 +28,15 @@ class SignUpStep3Args {
   });
 }
 
-class SignUpStep3 extends BaseView {
+class SignUpStep3View extends BaseView {
   final SignUpStep3Args signUpStep3Args;
-  SignUpStep3({required this.signUpStep3Args});
+  SignUpStep3View({required this.signUpStep3Args});
 
   @override
-  State<SignUpStep3> createState() => _SignUpViewState();
+  State<SignUpStep3View> createState() => _SignUpStep3ViewState();
 }
 
-class _SignUpViewState extends BaseViewState<SignUpStep3> {
+class _SignUpStep3ViewState extends BaseViewState<SignUpStep3View> {
   var bloc = injection<UserBloc>();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
