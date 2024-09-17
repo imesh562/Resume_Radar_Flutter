@@ -199,12 +199,6 @@ class _InterviewResultsViewState extends BaseViewState<InterviewResultsView> {
                                     color: AppColors.matteBlack,
                                   ),
                                 ),
-                                trailing: Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.primaryGreen,
-                                  size: 30.h,
-                                ),
-                                onTap: () {},
                               ),
                             );
                           },
