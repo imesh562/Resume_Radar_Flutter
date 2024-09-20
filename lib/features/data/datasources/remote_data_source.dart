@@ -2,8 +2,12 @@ import 'dart:core';
 
 import 'package:resume_radar/features/data/datasources/shared_preference.dart';
 import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_questions_data_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_quizzes_request.dart';
 import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
 import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/get_questions_data_responses.dart';
+import 'package:resume_radar/features/data/models/responses/get_quizzes_response.dart';
 import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../core/network/api_helper.dart';
@@ -31,6 +35,11 @@ abstract class RemoteDataSource {
       UserRegisterRequest userRegisterRequest);
 
   Future<CheckEmailResponse> checkEmailAPI(CheckEmailRequest checkEmailRequest);
+
+  Future<GetQuizzesResponse> getQuizzesAPI(GetQuizzesRequest getQuizzesRequest);
+
+  Future<GetQuestionDataResponse> getQuestionDataAPI(
+      GetQuestionDataRequest getQuestionDataRequest);
 }
 
 class RemoteDataSourceImpl implements RemoteDataSource {
@@ -128,6 +137,32 @@ class RemoteDataSourceImpl implements RemoteDataSource {
         body: userRegisterRequest.toJson(),
       );
       return UserRegisterResponse.fromJson(response.data);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<GetQuizzesResponse> getQuizzesAPI(
+      GetQuizzesRequest getQuizzesRequest) async {
+    try {
+      final response = await apiHelper.get(
+        "quizzes?page=${getQuizzesRequest.page}&perPage=${getQuizzesRequest.perPage}&sort=${getQuizzesRequest.sort}",
+      );
+      return GetQuizzesResponse.fromJson(response.data);
+    } on Exception {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<GetQuestionDataResponse> getQuestionDataAPI(
+      GetQuestionDataRequest getQuestionDataRequest) async {
+    try {
+      final response = await apiHelper.get(
+        "quizzes/${getQuestionDataRequest.quizId}/questions",
+      );
+      return GetQuestionDataResponse.fromJson(response.data);
     } on Exception {
       rethrow;
     }

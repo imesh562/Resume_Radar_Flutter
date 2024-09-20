@@ -1,7 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_questions_data_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_quizzes_request.dart';
 import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
 import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/get_questions_data_responses.dart';
+import 'package:resume_radar/features/data/models/responses/get_quizzes_response.dart';
 import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../error/failures.dart';
@@ -33,4 +37,10 @@ abstract class Repository {
 
   Future<Either<Failure, UserRegisterResponse>> userRegisterAPI(
       UserRegisterRequest userRegisterRequest);
+
+  Future<Either<Failure, GetQuizzesResponse>> getQuizzesAPI(
+      GetQuizzesRequest getQuizzesRequest);
+
+  Future<Either<Failure, GetQuestionDataResponse>> getQuestionsDataAPI(
+      GetQuestionDataRequest getQuestionDataRequest);
 }

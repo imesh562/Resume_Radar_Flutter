@@ -1,7 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:resume_radar/features/data/models/requests/check_email_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_questions_data_request.dart';
+import 'package:resume_radar/features/data/models/requests/get_quizzes_request.dart';
 import 'package:resume_radar/features/data/models/requests/user_register_request.dart';
 import 'package:resume_radar/features/data/models/responses/check_email_response.dart';
+import 'package:resume_radar/features/data/models/responses/get_questions_data_responses.dart';
+import 'package:resume_radar/features/data/models/responses/get_quizzes_response.dart';
 import 'package:resume_radar/features/data/models/responses/user_register_response.dart';
 
 import '../../../core/network/network_info.dart';
@@ -198,6 +202,62 @@ class RepositoryImpl implements Repository {
       try {
         final response =
             await remoteDataSource.registerUserAPI(userRegisterRequest);
+        return Right(response);
+      } on ServerException catch (ex) {
+        return Left(ServerFailure(ex.errorResponseModel));
+      } on UnAuthorizedException catch (ex) {
+        return Left(AuthorizedFailure(ex.errorResponseModel));
+      } on DioException catch (e) {
+        return Left(ServerFailure(e.errorResponseModel));
+      } on Exception {
+        return Left(
+          ServerFailure(
+            ErrorResponseModel(
+                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
+                responseCode: ''),
+          ),
+        );
+      }
+    } else {
+      return Left(ConnectionFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, GetQuestionDataResponse>> getQuestionsDataAPI(
+      GetQuestionDataRequest getQuestionDataRequest) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response =
+            await remoteDataSource.getQuestionDataAPI(getQuestionDataRequest);
+        return Right(response);
+      } on ServerException catch (ex) {
+        return Left(ServerFailure(ex.errorResponseModel));
+      } on UnAuthorizedException catch (ex) {
+        return Left(AuthorizedFailure(ex.errorResponseModel));
+      } on DioException catch (e) {
+        return Left(ServerFailure(e.errorResponseModel));
+      } on Exception {
+        return Left(
+          ServerFailure(
+            ErrorResponseModel(
+                responseError: ErrorMessages.ERROR_SOMETHING_WENT_WRONG,
+                responseCode: ''),
+          ),
+        );
+      }
+    } else {
+      return Left(ConnectionFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, GetQuizzesResponse>> getQuizzesAPI(
+      GetQuizzesRequest getQuizzesRequest) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final response =
+            await remoteDataSource.getQuizzesAPI(getQuizzesRequest);
         return Right(response);
       } on ServerException catch (ex) {
         return Left(ServerFailure(ex.errorResponseModel));
