@@ -19,10 +19,10 @@ import '../base_state.dart';
 part 'quiz_event.dart';
 part 'quiz_state.dart';
 
-class OtpBloc extends Base<QuizEvent, BaseState<QuizState>> {
+class QuizBloc extends Base<QuizEvent, BaseState<QuizState>> {
   final AppSharedData appSharedData;
   final Repository repository;
-  OtpBloc({
+  QuizBloc({
     required this.appSharedData,
     required this.repository,
   }) : super(QuizInitial()) {
@@ -32,7 +32,9 @@ class OtpBloc extends Base<QuizEvent, BaseState<QuizState>> {
 
   Future<void> _getQuizzes(
       GetQuizzesEvent event, Emitter<BaseState<QuizState>> emit) async {
-    emit(APILoadingState());
+    if (!event.isRefresh) {
+      emit(APILoadingState());
+    }
     final result = await repository.getQuizzesAPI(
       event.getQuizzesRequest,
     );
@@ -51,6 +53,7 @@ class OtpBloc extends Base<QuizEvent, BaseState<QuizState>> {
       if (r.success) {
         return GetQuizzesSuccessState(
           quizzesData: r.data!,
+          isRefresh: event.isRefresh,
         );
       } else {
         return APIFailureState(

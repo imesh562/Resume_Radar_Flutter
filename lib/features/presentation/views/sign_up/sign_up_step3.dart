@@ -102,13 +102,16 @@ class _SignUpStep3ViewState extends BaseViewState<SignUpStep3View> {
                             child: Column(
                               children: [
                                 AppTextField(
-                                  label: 'Full name',
+                                  label: 'First name',
                                   isRequired: true,
-                                  hint: 'Enter full name',
+                                  hint: 'Enter first name',
                                   filterType: FilterType.TYPE6,
                                   controller: firstNameController,
                                   maxLength: 60,
                                   inputType: TextInputType.name,
+                                  textInputFormatter:
+                                      FilteringTextInputFormatter.deny(
+                                          RegExp(r'\s')),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
                                       return 'First name required!';
@@ -122,6 +125,8 @@ class _SignUpStep3ViewState extends BaseViewState<SignUpStep3View> {
                                 AppTextField(
                                   label: 'Last name',
                                   hint: 'Enter Last name',
+                                  textInputFormatter:
+                                      NoLeadingSpaceInputFormatter(),
                                   filterType: FilterType.TYPE6,
                                   controller: lastNameController,
                                   maxLength: 120,
@@ -226,5 +231,16 @@ class _SignUpStep3ViewState extends BaseViewState<SignUpStep3View> {
   @override
   Base<BaseEvent, BaseState> getBloc() {
     return bloc;
+  }
+}
+
+class NoLeadingSpaceInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.startsWith(' ')) {
+      return oldValue;
+    }
+    return newValue;
   }
 }

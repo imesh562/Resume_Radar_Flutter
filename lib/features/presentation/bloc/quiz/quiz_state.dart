@@ -7,8 +7,12 @@ class QuizInitial extends QuizState {}
 
 class GetQuizzesSuccessState extends QuizState {
   final QuizzesData quizzesData;
+  final bool isRefresh;
 
-  GetQuizzesSuccessState({required this.quizzesData});
+  GetQuizzesSuccessState({
+    required this.quizzesData,
+    required this.isRefresh,
+  });
 }
 
 class GetQuestionsDataSuccessState extends QuizState {

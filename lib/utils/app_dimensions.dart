@@ -13,6 +13,7 @@ class AppDimensions {
   static double kFontSize15 = 15.sp;
   static double kFontSize16 = 16.sp;
   static double kFontSize17 = 17.sp;
+  static double kFontSize175 = 17.5.sp;
   static double kFontSize18 = 18.sp;
   static double kFontSize19 = 19.sp;
   static double kFontSize20 = 20.sp;

@@ -4,11 +4,11 @@ class AppConstants {
   static const int APP_SESSION_TIMEOUT = 10 * 60;
   static bool IS_USER_LOGGED = false;
   static bool isBeta = true;
-  static String SHARE_API_KEY = "JLKPXIcCY3elWdIMqYhQScXyfU8ldlBxu5Rpqrye";
+  static String SHARE_API_KEY = "nh23lczjEGZnBt2KbQ0cyozIaFend3jWe0mABE3M";
   static String GEMINI_API_KEY = "AIzaSyA_eo3vsmHx9_0ekCfboYmqmhP4iqEchdI";
   static String FORCE_STOP = "a18698f1-4262-4d36-94d0-7fe06b7a1294";
   static String BASE_PROMPT =
-      """I want to simulate a 20-minute job interview for a job seeker using the data provided. Ask technical questions and also questions about the job seeker's data provided in the first message. The company can be anything of your choice(real or not real). At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. If at any point I send the string "a18698f1-4262-4d36-94d0-7fe06b7a1294" as a response, the interview should immediately end, and you should return the performance. From this point onward, all the data should be returned on the following JSON formatted object.
+      """I want to simulate a 20-minute job interview for a job seeker using the data provided. Ask technical questions and also questions about the job seeker's data provided in the first message. The company can be anything of your choice(real or not real). At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. If at any point I send the string "a18698f1-4262-4d36-94d0-7fe06b7a1294" as a response, the interview should immediately end, and you should return the performance. From this point onward, all the data should be returned on the following JSON formatted object. Please make sure that the JSON is formatted correctly with correct commas in right places.
 
 If the Interview has not ended, the response structure should be like this and questions can vary.
 
@@ -18,7 +18,7 @@ If the Interview has not ended, the response structure should be like this and q
   "performance": null
 }
 
-At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. The results structure should be like this,  
+At the end of the interview, I need the job seeker's performance results. These results depend on job seekers' answers to their questions. You have to give these results by analyzing job seekers' answers. The results structure should be like this, and these data should be dynamic according to the users performance, and make sure there is no unwanted spaces for the keys in this json structure  
 
 {
   "question": "Thank you for participating in this interview",

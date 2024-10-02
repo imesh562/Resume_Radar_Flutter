@@ -242,7 +242,7 @@ class _AppAttachmentFieldState extends State<AppAttachmentField> {
             Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
-                height: 40.h,
+                height: 45.h,
                 width: 40.w,
                 child: Padding(
                   padding: EdgeInsets.only(

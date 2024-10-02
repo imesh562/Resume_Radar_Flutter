@@ -47,17 +47,7 @@ class _AppButtonOutlineState extends State<AppButtonOutline> {
               ? widget.buttonType == ButtonType.ENABLED
                   ? widget.buttonColor
                   : AppColors.profileArrowColor
-              : null,
-          gradient: widget.buttonColor == null
-              ? const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    AppColors.appButtonOutlineGradient1,
-                    AppColors.appButtonOutlineGradient2,
-                  ],
-                )
-              : null,
+              : AppColors.errorRed.withOpacity(0.75),
         ),
         child: Center(
           child: Row(

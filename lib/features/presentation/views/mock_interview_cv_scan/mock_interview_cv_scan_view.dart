@@ -14,6 +14,8 @@ import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_dimensions.dart';
+import '../../../../utils/app_images.dart';
 import '../../bloc/base_bloc.dart';
 import '../../bloc/base_event.dart';
 import '../../bloc/base_state.dart';
@@ -33,6 +35,7 @@ class _MockInterviewCvScanViewState
   var bloc = injection<UserBloc>();
 
   File? resume;
+  String? resumeName;
   ParseResumeModel? resumeData;
 
   @override
@@ -46,79 +49,138 @@ class _MockInterviewCvScanViewState
         create: (_) => bloc,
         child: BlocListener<UserBloc, BaseState<UserState>>(
           listener: (_, state) {},
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
+            children: [
+              Row(
                 children: [
-                  AppAttachmentField(
-                    label: 'Select Your Resume',
-                    hint: 'Tap here to attach file (10MB max)',
-                    isRequired: true,
-                    onChange: (file, fileName) {
-                      if (file != null && fileName != null) {
-                        setState(() {
-                          resume = file;
-                        });
-                      }
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please select a document";
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20.h),
-                  if (resume != null)
-                    Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 300.h,
-                            width: 170.w,
-                            padding: EdgeInsets.all(8.r),
-                            color: AppColors.checkBoxBorder,
-                            child:
-                                _getFilePreview(path.extension(resume!.path)),
-                          ),
-                          SizedBox(height: 20.h),
-                        ],
-                      ),
-                    ),
-                  AppButton(
-                    buttonText: 'Upload File & Begin Interview',
-                    buttonType: resume != null
-                        ? ButtonType.ENABLED
-                        : ButtonType.DISABLED,
-                    onTapButton: () {
-                      showProgressBar();
-                      if (resume != null) {
-                        SharpApi.parseResume(
-                          resume: resume!,
-                          language: SharpApiLanguages.ENGLISH,
-                        ).then((value) {
-                          hideProgressBar();
-                          setState(() {
-                            resumeData = value;
-                          });
-                          Navigator.pushNamed(
-                            context,
-                            Routes.kMockInterviewView,
-                            arguments: resumeData,
-                          );
-                        }).catchError((error) {
-                          hideProgressBar();
-                          showSnackBar("Something went wrong!", AlertType.FAIL);
-                        });
-                      }
-                    },
+                  Image.asset(
+                    AppImages.imgBg2,
+                    height: 349.h,
                   ),
                 ],
               ),
-            ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Image.asset(
+                  AppImages.imgBg1,
+                  height: 432.h,
+                ),
+              ),
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15.w),
+                      child: Column(
+                        children: [
+                          if (resume == null)
+                            Column(
+                              children: [
+                                SizedBox(height: 142.h),
+                                Image.asset(
+                                  AppImages.appIcon,
+                                  height: 60.h,
+                                ),
+                                SizedBox(height: 12.05.h),
+                                Text(
+                                  'Upload your resume',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: AppDimensions.kFontSize20,
+                                    color: AppColors.loginTitleColor,
+                                  ),
+                                ),
+                                SizedBox(height: 21.h),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 23.w),
+                                  child: Text(
+                                    'Please upload your resume to begin the mock interview.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: AppDimensions.kFontSize14,
+                                      color: AppColors.textFieldTitleColor,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          AppAttachmentField(
+                            hint: 'Tap here to attach file (10MB max)',
+                            answer: resumeName,
+                            onChange: (file, fileName) {
+                              if (file != null && fileName != null) {
+                                setState(() {
+                                  resume = file;
+                                  resumeName = fileName;
+                                });
+                              }
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Please select a document";
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 20.h),
+                          if (resume != null)
+                            Center(
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 300.h,
+                                    width: 170.w,
+                                    padding: EdgeInsets.all(8.r),
+                                    color: AppColors.checkBoxBorder,
+                                    child: _getFilePreview(
+                                        path.extension(resume!.path)),
+                                  ),
+                                  SizedBox(height: 20.h),
+                                ],
+                              ),
+                            ),
+                          AppButton(
+                            buttonText: 'Upload File & Begin Interview',
+                            buttonType: resume != null
+                                ? ButtonType.ENABLED
+                                : ButtonType.DISABLED,
+                            onTapButton: () {
+                              showProgressBar();
+                              if (resume != null) {
+                                SharpApi.parseResume(
+                                  resume: resume!,
+                                  language: SharpApiLanguages.ENGLISH,
+                                ).then((value) {
+                                  hideProgressBar();
+                                  setState(() {
+                                    resumeData = value;
+                                  });
+                                  Navigator.pushNamed(
+                                    context,
+                                    Routes.kMockInterviewView,
+                                    arguments: resumeData,
+                                  );
+                                }).catchError((error) {
+                                  hideProgressBar();
+                                  showSnackBar(
+                                      "Something went wrong!", AlertType.FAIL);
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Column(),
+            ],
           ),
         ),
       ),

@@ -21,6 +21,7 @@ import '../../bloc/base_bloc.dart';
 import '../../bloc/base_event.dart';
 import '../../bloc/base_state.dart';
 import '../../bloc/user/user_bloc.dart';
+import '../../common/app_button.dart';
 import '../base_view.dart';
 
 class MockInterviewView extends BaseView {
@@ -167,11 +168,8 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
                     children: [
                       InkWell(
                         borderRadius: BorderRadius.circular(100.r),
-                        onTapDown: (_) async {
+                        onTap: () async {
                           _startListening();
-                        },
-                        onTapUp: (_) {
-                          _stopListening();
                         },
                         child: const CircleAvatar(
                           backgroundColor: AppColors.colorTransparent,
@@ -214,9 +212,40 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
   }
 
   void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    _showListeningOverlay();
-    setState(() {});
+    if (!_speechToText.isListening) {
+      await _speechToText.listen(
+        onResult: _onSpeechResult,
+        listenMode: ListenMode.dictation,
+        listenFor: const Duration(seconds: 120),
+        pauseFor: const Duration(seconds: 10),
+      );
+      _showListeningOverlay();
+      setState(() {});
+    }
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    String recognizedText = result.recognizedWords;
+    if (result.finalResult) {
+      recognizedText = _addPunctuationBasedOnPauses(recognizedText);
+      _processRecognizedText(recognizedText);
+    } else {
+      setState(() {
+        messageController.text = recognizedText;
+      });
+    }
+  }
+
+  String _addPunctuationBasedOnPauses(String text) {
+    text = text.replaceAll(RegExp(r"(\s{2,})"), ", ");
+    text = text.replaceAll(RegExp(r"(\s{3,})"), ". ");
+    return text;
+  }
+
+  void _processRecognizedText(String text) {
+    setState(() {
+      messageController.text = text;
+    });
   }
 
   void _stopListening() async {
@@ -225,19 +254,10 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
     setState(() {});
   }
 
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    print(result.recognizedWords);
-    setState(() {
-      messageController.text = result.recognizedWords;
-    });
-  }
-
   void _showListeningOverlay() {
     if (_listeningOverlay != null) return;
     _listeningOverlay = OverlayEntry(
-      builder: (context) => Positioned(
-        top: MediaQuery.of(context).size.height / 2 - 50,
-        left: MediaQuery.of(context).size.width / 2 - 50,
+      builder: (context) => Center(
         child: _buildListeningAnimation(),
       ),
     );
@@ -251,50 +271,66 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
 
   Widget _buildListeningAnimation() {
     return Material(
-      color: Colors.transparent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 100.h,
-            height: 100.h,
-            decoration: BoxDecoration(
-              color: AppColors.colorBlack.withOpacity(0.7),
-              shape: BoxShape.circle,
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(5.w),
-              child: const Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.primaryGreen),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.colorBlack.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(15.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 100.h,
+                height: 100.h,
+                decoration: BoxDecoration(
+                  color: AppColors.colorBlack.withOpacity(0.7),
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(5.w),
+                  child: const Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primaryGreen),
+                          ),
+                        ),
                       ),
-                    ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.mic,
+                          color: AppColors.primaryGreen,
+                        ),
+                      ),
+                    ],
                   ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.mic,
-                      color: AppColors.primaryGreen,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              SizedBox(height: 10.h),
+              Text(
+                "Listening...",
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontSize: AppDimensions.kFontSize18,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              AppButton(
+                buttonText: 'Stop',
+                width: 200.w,
+                onTapButton: () {
+                  _stopListening();
+                },
+              )
+            ],
           ),
-          SizedBox(height: 10.h),
-          Text(
-            "Listening...",
-            style: TextStyle(
-              color: AppColors.primaryGreen,
-              fontSize: AppDimensions.kFontSize18,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -361,7 +397,19 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
                 lastResponse.replaceAll('“', '"').replaceAll('”', '"'));
           });
           log(lastResponse);
-          if (responseJson["has_ended"] == true) {
+          if (responseJson["has_ended"] == true ||
+              responseJson["question"] == AppConstants.FORCE_STOP) {
+            if (appSharedData.hasMockInterviewData()) {
+              List<Map<String, dynamic>> mockInterviewData =
+                  appSharedData.getMockInterviewData();
+              mockInterviewData.insert(0, responseJson);
+              if (mockInterviewData.length > 3) {
+                mockInterviewData.removeLast();
+              }
+              appSharedData.setMockInterviewData(mockInterviewData);
+            } else {
+              appSharedData.setMockInterviewData([responseJson]);
+            }
             Navigator.pushReplacementNamed(
               context,
               Routes.kInterviewResultsView,

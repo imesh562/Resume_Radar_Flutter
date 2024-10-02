@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +11,7 @@ import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_images.dart';
 import '../../../domain/entities/common/course_entity.dart';
 import '../../bloc/base_bloc.dart';
 import '../../bloc/base_event.dart';
@@ -63,144 +66,186 @@ class _RecommendationAndOtherInfoViewState
         create: (_) => bloc,
         child: BlocListener<UserBloc, BaseState<UserState>>(
           listener: (_, state) {},
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
+            children: [
+              Row(
                 children: [
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'Overall Score',
-                          style: TextStyle(
-                            fontSize: AppDimensions.kFontSize22,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.matteBlack,
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        CircleAvatar(
-                          radius: 60.r,
-                          backgroundColor: AppColors.primaryGreen,
-                          child: Text(
-                            '${overallScore.toInt()}',
+                  Image.asset(
+                    AppImages.imgBg2,
+                    height: 349.h,
+                  ),
+                ],
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Image.asset(
+                  AppImages.imgBg1,
+                  height: 432.h,
+                ),
+              ),
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Overall Score',
                             style: TextStyle(
-                              fontSize: AppDimensions.kFontSize42,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.colorWhite,
+                              fontSize: AppDimensions.kFontSize22,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.matteBlack,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 30.h),
-                  Text(
-                    'Improvements to Make',
-                    style: TextStyle(
-                      fontSize: AppDimensions.kFontSize20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.matteBlack,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  improvements.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: improvements.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              leading: Icon(
-                                Icons.warning,
-                                color: AppColors.errorRed,
-                                size: 25.h,
+                          SizedBox(height: 10.h),
+                          CircleAvatar(
+                            radius: 60.r,
+                            backgroundColor: AppColors.primaryGreen,
+                            child: Text(
+                              '${overallScore.toInt()}',
+                              style: TextStyle(
+                                fontSize: AppDimensions.kFontSize42,
+                                fontWeight: FontWeight.w400,
+                                color: AppColors.colorWhite,
                               ),
-                              title: Text(
-                                improvements[index],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 30.h),
+                    ClipRRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.h, horizontal: 15.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.colorWhite.withOpacity(0.75),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Improvements to Make',
                                 style: TextStyle(
-                                  fontSize: AppDimensions.kFontSize16,
-                                  fontWeight: FontWeight.w400,
+                                  fontSize: AppDimensions.kFontSize20,
+                                  fontWeight: FontWeight.w700,
                                   color: AppColors.matteBlack,
                                 ),
                               ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text(
-                            'No improvements needed!\nYour resume is great.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: AppDimensions.kFontSize16,
-                              color: AppColors.waitingTimeColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                  Text(
-                    'Recommended Courses',
-                    style: TextStyle(
-                      fontSize: AppDimensions.kFontSize20,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.matteBlack,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  recommendations.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: recommendations.length,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final course = recommendations[index];
-                            return Card(
-                              elevation: 3,
-                              child: ListTile(
-                                title: Text(
-                                  course.courseTitle,
-                                  style: TextStyle(
-                                    fontSize: AppDimensions.kFontSize16,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.matteBlack,
-                                  ),
+                              SizedBox(height: 10.h),
+                              improvements.isNotEmpty
+                                  ? ListView.builder(
+                                      itemCount: improvements.length,
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          leading: Icon(
+                                            Icons.warning,
+                                            color: AppColors.errorRed,
+                                            size: 25.h,
+                                          ),
+                                          title: Text(
+                                            improvements[index],
+                                            style: TextStyle(
+                                              fontSize:
+                                                  AppDimensions.kFontSize16,
+                                              fontWeight: FontWeight.w400,
+                                              color: AppColors.matteBlack,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        'No improvements needed!\nYour resume is great.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.kFontSize16,
+                                          color: AppColors.waitingTimeColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                              Text(
+                                'Recommended Courses',
+                                style: TextStyle(
+                                  fontSize: AppDimensions.kFontSize20,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.matteBlack,
                                 ),
-                                subtitle: Text(
-                                  'Subscribers: ${course.numSubscribers}\nSubject: ${course.subject}',
-                                  style: TextStyle(
-                                    fontSize: AppDimensions.kFontSize14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.waitingTimeColor,
-                                  ),
-                                ),
-                                trailing: Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.primaryGreen,
-                                  size: 30.h,
-                                ),
-                                onTap: () {},
                               ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text(
-                            'No recommendations available at the moment.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: AppDimensions.kFontSize16,
-                              color: AppColors.waitingTimeColor,
-                              fontWeight: FontWeight.w500,
-                            ),
+                              SizedBox(height: 10.h),
+                              recommendations.isNotEmpty
+                                  ? ListView.builder(
+                                      itemCount: recommendations.length,
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        final course = recommendations[index];
+                                        return Card(
+                                          elevation: 3,
+                                          child: ListTile(
+                                            title: Text(
+                                              course.courseTitle,
+                                              style: TextStyle(
+                                                fontSize:
+                                                    AppDimensions.kFontSize16,
+                                                fontWeight: FontWeight.w500,
+                                                color: AppColors.matteBlack,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              'Subscribers: ${course.numSubscribers}\nSubject: ${course.subject}',
+                                              style: TextStyle(
+                                                fontSize:
+                                                    AppDimensions.kFontSize14,
+                                                fontWeight: FontWeight.w400,
+                                                color:
+                                                    AppColors.waitingTimeColor,
+                                              ),
+                                            ),
+                                            trailing: Icon(
+                                              Icons.arrow_forward,
+                                              color: AppColors.primaryGreen,
+                                              size: 30.h,
+                                            ),
+                                            onTap: () {},
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        'No recommendations available at the moment.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.kFontSize16,
+                                          color: AppColors.waitingTimeColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                              SizedBox(height: 40.h),
+                            ],
                           ),
                         ),
-                  SizedBox(height: 40.h),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              const Column(),
+            ],
           ),
         ),
       ),

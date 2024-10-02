@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
 import '../models/responses/auth_user_response.dart';
 
@@ -10,6 +11,8 @@ const String _PW_KEY = 'password_key';
 const String _PUSH_TOKEN = 'push_token';
 const String _REMEMBER_KEY = 'remember_key';
 const String _APP_USER = 'app_user';
+const String _Mock_Interview_Data = 'mock_interview_data';
+const String _Resume_Analysis_Data = 'resume_analysis_data';
 
 class AppSharedData {
   late SharedPreferences secureStorage;
@@ -134,5 +137,47 @@ class AppSharedData {
 
   clearAppUser() {
     secureStorage.remove(_APP_USER);
+  }
+
+  ///Mock Interview
+  setMockInterviewData(List<Map<String, dynamic>> mockInterviewData) {
+    secureStorage.setString(
+        _Mock_Interview_Data, jsonEncode(mockInterviewData));
+  }
+
+  bool hasMockInterviewData() {
+    return secureStorage.containsKey(_Mock_Interview_Data);
+  }
+
+  List<Map<String, dynamic>> getMockInterviewData() {
+    List<Map<String, dynamic>> interviewData = List<Map<String, dynamic>>.from(
+        jsonDecode(secureStorage.getString(_Mock_Interview_Data)!));
+    return interviewData;
+  }
+
+  clearMockInterviewData() {
+    secureStorage.remove(_Mock_Interview_Data);
+  }
+
+  ///Resume Analysis
+  setResumeAnalysisData(List<ParseResumeModel> mockInterviewData) {
+    secureStorage.setString(
+        _Resume_Analysis_Data,
+        jsonEncode(
+            List<dynamic>.from(mockInterviewData.map((x) => x.toJson()))));
+  }
+
+  bool hasResumeAnalysisData() {
+    return secureStorage.containsKey(_Resume_Analysis_Data);
+  }
+
+  List<ParseResumeModel> getResumeAnalysisData() {
+    return List<ParseResumeModel>.from(
+        jsonDecode(secureStorage.getString(_Resume_Analysis_Data)!)
+            .map((x) => ParseResumeModel.fromJson(x)));
+  }
+
+  clearResumeAnalysisData() {
+    secureStorage.remove(_Resume_Analysis_Data);
   }
 }

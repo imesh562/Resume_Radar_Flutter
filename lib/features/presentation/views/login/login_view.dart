@@ -235,6 +235,7 @@ class _SplashViewState extends BaseViewState<LoginView> {
                     SizedBox(height: 15.h),
                     AppButtonOutline(
                       buttonText: 'Sign Up',
+                      buttonColor: AppColors.primaryGreen,
                       onTapButton: () {
                         Navigator.pushNamed(context, Routes.kSignUpStep1);
                       },

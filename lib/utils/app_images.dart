@@ -22,4 +22,6 @@ class AppImages {
   static const String icQuiz = 'images/png/ic_quiz.png';
   static const String icCvScan = 'images/png/ic_cv_scan.png';
   static const String icAiLogo = 'images/png/ic_ai_logo.png';
+  static const String icEmptyLight = 'images/png/ic_empty_light.png';
+  static const String icForward = 'images/png/ic_forward.png';
 }

@@ -30,4 +30,8 @@ class AppColors {
   static const Color settingsTextColor = Color(0xFF424242);
   static const Color logOutColor = Color(0xFF1176DC);
   static const Color secondaryBlue = Color(0xff2557e8);
+  static const Color homeGradient1 = Color(0xFF60EFC4);
+  static const Color homeGradient2 = Color(0xFF13C6FF);
+  static const Color circleColor3 = Color(0xFFDEDEDE);
+  static const Color circleTextColor = Color(0xFF178ABB);
 }

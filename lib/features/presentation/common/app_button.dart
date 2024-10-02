@@ -42,17 +42,7 @@ class _AppButtonState extends State<AppButton> {
               ? widget.buttonType == ButtonType.ENABLED
                   ? widget.buttonColor
                   : AppColors.profileArrowColor
-              : null,
-          gradient: widget.buttonColor == null
-              ? const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    AppColors.appButtonGradient1,
-                    AppColors.appButtonGradient2,
-                  ],
-                )
-              : null,
+              : AppColors.primaryGreen,
         ),
         child: Center(
           child: Row(

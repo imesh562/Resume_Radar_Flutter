@@ -5,9 +5,11 @@ abstract class QuizEvent extends BaseEvent {}
 
 class GetQuizzesEvent extends QuizEvent {
   final GetQuizzesRequest getQuizzesRequest;
+  final bool isRefresh;
 
   GetQuizzesEvent({
     required this.getQuizzesRequest,
+    required this.isRefresh,
   });
 }
 

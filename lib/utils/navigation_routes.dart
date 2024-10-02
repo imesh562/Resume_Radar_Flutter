@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:resume_radar/features/data/models/responses/get_quizzes_response.dart';
 import 'package:resume_radar/features/presentation/views/sign_up/sign_up_step1.dart';
 import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
 
@@ -8,6 +9,8 @@ import '../features/presentation/views/interview_results/interview_results_view.
 import '../features/presentation/views/login/login_view.dart';
 import '../features/presentation/views/mock_interview_cv_scan/mock_interview_cv_scan_view.dart';
 import '../features/presentation/views/mock_interview_view/mock_interview_view.dart';
+import '../features/presentation/views/quiz_list/quiz_list_view.dart';
+import '../features/presentation/views/quiz_view/quiz_view.dart';
 import '../features/presentation/views/recommendations_&_other/recommendations_&_other_info_view.dart';
 import '../features/presentation/views/resume_analyzer/resume_analyzer_view.dart';
 import '../features/presentation/views/sign_up/sign_up_step2.dart';
@@ -29,6 +32,8 @@ class Routes {
   static const String kMockInterviewCvScanView = "kMockInterviewCvScanView";
   static const String kMockInterviewView = "kMockInterviewView";
   static const String kInterviewResultsView = "kInterviewResultsView";
+  static const String kQuizzesView = "kQuizzesView";
+  static const String kQuizView = "kQuizView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -64,7 +69,11 @@ class Routes {
             type: PageTransitionType.fade);
       case Routes.kResumeAnalyzerView:
         return PageTransition(
-            child: ResumeAnalyzerView(), type: PageTransitionType.fade);
+            child: ResumeAnalyzerView(
+              resumeAnalyzerViewArgs:
+                  settings.arguments as ResumeAnalyzerViewArgs,
+            ),
+            type: PageTransitionType.fade);
       case Routes.kRecommendationAndOtherInfoView:
         return PageTransition(
             child: RecommendationAndOtherInfoView(
@@ -84,6 +93,18 @@ class Routes {
         return PageTransition(
           child: InterviewResultsView(
             responseJson: settings.arguments as Map<String, dynamic>,
+          ),
+          type: PageTransitionType.fade,
+        );
+      case Routes.kQuizzesView:
+        return PageTransition(
+          child: QuizzesView(),
+          type: PageTransitionType.fade,
+        );
+      case Routes.kQuizView:
+        return PageTransition(
+          child: QuizView(
+            quizData: settings.arguments as Quiz,
           ),
           type: PageTransitionType.fade,
         );
