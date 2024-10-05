@@ -4,7 +4,7 @@ class AppConstants {
   static const int APP_SESSION_TIMEOUT = 10 * 60;
   static bool IS_USER_LOGGED = false;
   static bool isBeta = true;
-  static String SHARE_API_KEY = "nh23lczjEGZnBt2KbQ0cyozIaFend3jWe0mABE3M";
+  static String SHARE_API_KEY = "YitpO4GQ3XPJGjaCfqMEfKSuL1nX0xUrU1rKRVyX";
   static String GEMINI_API_KEY = "AIzaSyA_eo3vsmHx9_0ekCfboYmqmhP4iqEchdI";
   static String FORCE_STOP = "a18698f1-4262-4d36-94d0-7fe06b7a1294";
   static String BASE_PROMPT =
