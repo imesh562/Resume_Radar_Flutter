@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:resume_radar/features/presentation/bloc/user/user_bloc.dart';
 import 'package:resume_radar/utils/app_dimensions.dart';
 import 'package:sharpapi_flutter_client/src/hr/models/parse_resume_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/service/dependency_injection.dart';
 import '../../../../utils/app_colors.dart';
@@ -34,6 +36,13 @@ class _RecommendationAndOtherInfoViewState
     extends BaseViewState<RecommendationAndOtherInfoView> {
   var bloc = injection<UserBloc>();
   double overallScore = 0;
+  final double experienceWeight = 0.25;
+  double educationScore = 0;
+  double experienceScore = 0;
+  double certificationScore = 0;
+  double languageScore = 0;
+  double honorsScore = 0;
+  double skillsScore = 0;
   List<String> improvements = [];
   List<Course> courses = [];
   List<Course> recommendations = [];
@@ -130,6 +139,246 @@ class _RecommendationAndOtherInfoViewState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.colorWhite,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: AppColors.profileArrowColor,
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 3))
+                                  ],
+                                ),
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                      dividerColor: Colors.transparent),
+                                  child: ListTileTheme(
+                                    data: const ListTileThemeData(
+                                      contentPadding: EdgeInsets.zero,
+                                      visualDensity: VisualDensity.compact,
+                                      horizontalTitleGap: 0.0,
+                                      minLeadingWidth: 0,
+                                      dense: true,
+                                    ),
+                                    child: ExpansionTile(
+                                      collapsedIconColor: AppColors.matteBlack,
+                                      iconColor: AppColors.matteBlack,
+                                      tilePadding: EdgeInsets.symmetric(
+                                          horizontal: 14.h),
+                                      title: Text(
+                                        'Score Details',
+                                        style: TextStyle(
+                                          fontSize: AppDimensions.kFontSize14,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.matteBlack,
+                                        ),
+                                      ),
+                                      expandedAlignment: Alignment.centerLeft,
+                                      childrenPadding: EdgeInsets.zero,
+                                      dense: true,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 14.w),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Divider(
+                                                height: 0.6.h,
+                                                color: AppColors.lightGrey,
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Education Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${educationScore.toInt()}/30',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Experience Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${experienceScore.toInt()}/25',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Skills Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${skillsScore.toInt()}/25',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Certificates Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${certificationScore.toInt()}/10',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Languages Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${languageScore.toInt()}/5',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Honors & Awards Score',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${honorsScore.toInt()}/5',
+                                                    style: TextStyle(
+                                                      fontSize: AppDimensions
+                                                          .kFontSize12,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color:
+                                                          AppColors.matteBlack,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 14.h),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 15.h),
                               Text(
                                 'Improvements to Make',
                                 style: TextStyle(
@@ -219,7 +468,9 @@ class _RecommendationAndOtherInfoViewState
                                               color: AppColors.primaryGreen,
                                               size: 30.h,
                                             ),
-                                            onTap: () {},
+                                            onTap: () {
+                                              _launchUrl(Uri.parse(course.url));
+                                            },
                                           ),
                                         );
                                       },
@@ -253,50 +504,161 @@ class _RecommendationAndOtherInfoViewState
   }
 
   double calculateOverallScore(ParseResumeModel resume) {
-    double score = 0;
+    // Education Score (Based on degree type) out of 30.
+    if (resume.educationQualifications != null &&
+        resume.educationQualifications!.isNotEmpty) {
+      CandidateEducationModel highestEducation =
+          getHighestEducation(resume.educationQualifications!);
 
-    // Education Score (Out of 30)
-    if (resume.educationQualifications != null) {
-      int educationCount = resume.educationQualifications!.length;
-      score += (educationCount > 0) ? (educationCount * 10).clamp(0, 30) : 0;
+      double baseEducationScore = (highestEducation.degreeType!.contains("PhD"))
+          ? 30
+          : (highestEducation.degreeType!.contains("Master"))
+              ? 25
+              : (highestEducation.degreeType!.contains("Bachelor"))
+                  ? 20
+                  : 10;
+
+      educationScore = baseEducationScore;
     }
 
-    // Positions Score (Out of 30)
+    // Experience Score (Based on years of experience) out of 25.
+    if (resume.positions != null && resume.positions!.isNotEmpty) {
+      int totalYears = calculateTotalYearsOfExperience(resume.positions!);
+
+      experienceScore = (((totalYears /
+                      (resume.positions == null || resume.positions!.isEmpty
+                          ? 2
+                          : resume.positions!.length * 2))
+                  .clamp(0, 1)) *
+              100) *
+          experienceWeight;
+    }
+
+    // Certifications Score (Based on number of certifications) out of 10.
+    if (resume.candidateCoursesAndCertifications != null &&
+        resume.candidateCoursesAndCertifications!.isNotEmpty) {
+      certificationScore =
+          (resume.candidateCoursesAndCertifications!.length * 2.5)
+              .clamp(0, 10)
+              .toDouble();
+    }
+
+    // Languages Score (Based on number of languages spoken) out of 05.
+    if (resume.candidateSpokenLanguages != null &&
+        resume.candidateSpokenLanguages!.isNotEmpty) {
+      languageScore =
+          (resume.candidateSpokenLanguages!.length * 1).clamp(0, 5).toDouble();
+    }
+
+    // Honors and Awards Score (Based on number of awards) out of 5.
+    if (resume.candidateHonorsAndAwards != null &&
+        resume.candidateHonorsAndAwards!.isNotEmpty) {
+      honorsScore =
+          (resume.candidateHonorsAndAwards!.length * 1).clamp(0, 5).toDouble();
+    }
+
+    // Skills score out of 25.
+    Set<String> uniqueSkills = {};
+
     if (resume.positions != null) {
-      int positionsCount = resume.positions!.length;
-      score += (positionsCount > 0) ? (positionsCount * 10).clamp(0, 30) : 0;
+      for (var position in resume.positions!) {
+        if (position.skills != null) {
+          uniqueSkills.addAll(position.skills!.map((s) => s.toLowerCase()));
+        }
+      }
     }
 
-    // Certifications Score (Out of 15)
-    if (resume.candidateCoursesAndCertifications != null) {
-      int certificationsCount =
-          resume.candidateCoursesAndCertifications!.length;
-      score += (certificationsCount > 0)
-          ? (certificationsCount * 5).clamp(0, 15)
-          : 0;
+    if (resume.educationQualifications != null) {
+      for (var edu in resume.educationQualifications!) {
+        if (edu.specializationSubjects != null) {
+          uniqueSkills.addAll(edu.specializationSubjects!
+              .split(',')
+              .map((s) => s.trim().toLowerCase()));
+        }
+      }
     }
 
-    // Languages Score (Out of 10)
-    if (resume.candidateSpokenLanguages != null) {
-      int languagesCount = resume.candidateSpokenLanguages!.length;
-      score += (languagesCount > 0) ? (languagesCount * 2).clamp(0, 10) : 0;
-    }
+    skillsScore = (uniqueSkills.length * 2).clamp(0, 20).toDouble();
 
-    // Honors and Awards Score (Out of 15)
-    if (resume.candidateHonorsAndAwards != null) {
-      int awardsCount = resume.candidateHonorsAndAwards!.length;
-      score += (awardsCount > 0) ? (awardsCount * 5).clamp(0, 15) : 0;
-    }
+    double totalScore = educationScore +
+        experienceScore +
+        certificationScore +
+        languageScore +
+        skillsScore +
+        honorsScore;
+    totalScore = (totalScore).clamp(0, 100);
 
-    // Ensuring the score is capped at 100
-    return score.clamp(0, 100);
+    return totalScore;
+  }
+
+  CandidateEducationModel getHighestEducation(
+      List<CandidateEducationModel> educationList) {
+    educationList.sort((a, b) {
+      return degreePriority(b.degreeType ?? '')
+          .compareTo(degreePriority(a.degreeType ?? ''));
+    });
+    return educationList.first;
+  }
+
+  int degreePriority(String degreeType) {
+    if (degreeType.contains("PhD")) return 4;
+    if (degreeType.contains("Master")) return 3;
+    if (degreeType.contains("Bachelor")) return 2;
+    return 1;
+  }
+
+  int calculateTotalYearsOfExperience(List<CandidatePositionsModel> positions) {
+    int totalYears = 0;
+    int totalMonths = 0;
+    for (var position in positions) {
+      if (position.startDate != null) {
+        DateTime startDate =
+            DateFormat('yyyy-MM-dd').parse(position.startDate!);
+        DateTime endDate = position.endDate != null
+            ? DateFormat('yyyy-MM-dd').parse(position.endDate!)
+            : DateTime.now();
+        totalMonths +=
+            ((endDate.difference(startDate).inDays).abs() / 30).round();
+      }
+    }
+    totalYears += (totalMonths / 12).round();
+    return totalYears;
   }
 
   List<String> generateResumeImprovements(ParseResumeModel resume) {
     List<String> improvements = [];
 
-    if (resume.educationQualifications == null ||
-        resume.educationQualifications!.length < 2) {
+    Set<String> uniqueSkills = {};
+    if (resume.positions != null) {
+      for (var position in resume.positions!) {
+        if (position.skills != null) {
+          uniqueSkills.addAll(position.skills!.map((s) => s.toLowerCase()));
+        }
+      }
+    }
+    if (resume.educationQualifications != null) {
+      for (var edu in resume.educationQualifications!) {
+        if (edu.specializationSubjects != null) {
+          uniqueSkills.addAll(edu.specializationSubjects!
+              .split(',')
+              .map((s) => s.trim().toLowerCase()));
+        }
+      }
+    }
+
+    if (uniqueSkills.isEmpty) {
+      improvements.add(
+          'Add relevant skills to your resume to showcase your expertise.');
+    } else if (uniqueSkills.length < 5) {
+      improvements.add(
+          'Consider adding more skills to your resume to demonstrate a broader range of expertise.');
+    }
+
+    CandidateEducationModel highestEducation =
+        getHighestEducation(resume.educationQualifications!);
+
+    if (!(highestEducation.degreeType!.contains("Master") ||
+        highestEducation.degreeType!.contains("PhD"))) {
       improvements.add(
           'Consider adding more educational qualifications or pursuing higher education.');
     }
@@ -306,14 +668,21 @@ class _RecommendationAndOtherInfoViewState
           'Gain more work experience or update the resume with more recent positions.');
     } else {
       DateTime now = DateTime.now();
-      for (var position in resume.positions!) {
-        DateTime? endDate =
-            position.endDate != null ? DateTime.parse(position.endDate!) : null;
-        if (endDate != null &&
-            endDate.isBefore(now.subtract(const Duration(days: 730)))) {
+      List<CandidatePositionsModel> positions = resume.positions ?? [];
+      positions.sort((a, b) {
+        DateTime dateA =
+            a.endDate != null ? DateTime.parse(a.endDate!) : DateTime.now();
+        DateTime dateB =
+            b.endDate != null ? DateTime.parse(b.endDate!) : DateTime.now();
+        return dateA.compareTo(dateB);
+      });
+      if (positions.isNotEmpty) {
+        DateTime endDate = positions.last.endDate != null
+            ? DateFormat('yyyy-MM-dd').parse(positions.last.endDate!)
+            : DateTime.now();
+        if (endDate.isBefore(now.subtract(const Duration(days: 180)))) {
           improvements.add(
               'Add more recent positions or update the end date of current positions.');
-          break;
         }
       }
     }
@@ -389,6 +758,12 @@ class _RecommendationAndOtherInfoViewState
     recommendedCourses
         .sort((a, b) => b.numSubscribers.compareTo(a.numSubscribers));
     return recommendedCourses.take(topN).toList();
+  }
+
+  Future<void> _launchUrl(url) async {
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   @override

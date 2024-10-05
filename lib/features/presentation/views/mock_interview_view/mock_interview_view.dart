@@ -393,8 +393,20 @@ class _MockInterviewViewState extends BaseViewState<MockInterviewView> {
           Map<String, dynamic> responseJson = {};
           setState(() {
             lastResponse = completeResponse.trim();
-            responseJson = jsonDecode(
-                lastResponse.replaceAll('“', '"').replaceAll('”', '"'));
+            try {
+              responseJson = jsonDecode(
+                  lastResponse.replaceAll('“', '"').replaceAll('”', '"'));
+            } on Exception catch (e) {
+              print("ERROR: $e");
+              sendMessage(
+                ChatMessage(
+                  user: currentUser!,
+                  createdAt: DateTime.now(),
+                  text: "Can you repeat that question in corrected JSON format",
+                ),
+                displayInChat: false,
+              );
+            }
           });
           log(lastResponse);
           if (responseJson["has_ended"] == true ||

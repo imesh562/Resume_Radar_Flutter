@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:resume_radar/features/presentation/common/app_button.dart';
 import 'package:resume_radar/features/presentation/common/appbar.dart';
@@ -389,13 +390,11 @@ class _ResumeAnalyzerViewState extends BaseViewState<ResumeAnalyzerView> {
                                                   fieldValue:
                                                       '${position.positionName} at ${position.companyName}',
                                                 ),
-                                                if (position.startDate !=
-                                                        null &&
-                                                    position.endDate != null)
+                                                if (position.startDate != null)
                                                   ResumeDataField2(
                                                     fieldName: 'Period: ',
                                                     fieldValue:
-                                                        'From ${position.startDate} to ${position.endDate}',
+                                                        'From ${position.startDate} to ${position.endDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now())}',
                                                   ),
                                                 if (position.jobDetails != null)
                                                   ResumeDataField2(

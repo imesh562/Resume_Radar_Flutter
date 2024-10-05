@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gauge_indicator/gauge_indicator.dart';
+import 'package:intl/intl.dart';
 import 'package:resume_radar/features/presentation/views/resume_analyzer/resume_analyzer_view.dart';
 import 'package:resume_radar/utils/app_images.dart';
 import 'package:resume_radar/utils/navigation_routes.dart';
@@ -239,7 +240,8 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
                                 child: _getRadialGauge(
                                     appSharedData.hasResumeAnalysisData()
                                         ? calculateOverallScore(appSharedData
-                                            .getResumeAnalysisData()[0])
+                                                .getResumeAnalysisData()[0])
+                                            .toInt()
                                         : 0),
                               ),
                             ),
@@ -524,7 +526,7 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
                                             ),
                                           ),
                                           Text(
-                                            'Score: ${calculateOverallScore(resumeData[index])}/100',
+                                            'Score: ${calculateOverallScore(resumeData[index]).round()}/100',
                                             style: TextStyle(
                                               fontSize:
                                                   AppDimensions.kFontSize12,
@@ -670,44 +672,134 @@ class _DashboardViewState extends BaseViewState<DashboardView> {
     }
   }
 
-  int calculateOverallScore(ParseResumeModel resume) {
-    double score = 0;
+  double calculateOverallScore(ParseResumeModel resume) {
+    const double experienceWeight = 0.25;
+    double educationScore = 0;
+    double experienceScore = 0;
+    double certificationScore = 0;
+    double languageScore = 0;
+    double honorsScore = 0;
+    double skillsScore = 0;
 
-    // Education Score (Out of 30)
-    if (resume.educationQualifications != null) {
-      int educationCount = resume.educationQualifications!.length;
-      score += (educationCount > 0) ? (educationCount * 10).clamp(0, 30) : 0;
+    // Education Score (Based on degree type) out of 30.
+    if (resume.educationQualifications != null &&
+        resume.educationQualifications!.isNotEmpty) {
+      CandidateEducationModel highestEducation =
+          getHighestEducation(resume.educationQualifications!);
+
+      double baseEducationScore = (highestEducation.degreeType!.contains("PhD"))
+          ? 30
+          : (highestEducation.degreeType!.contains("Master"))
+              ? 25
+              : (highestEducation.degreeType!.contains("Bachelor"))
+                  ? 20
+                  : 10;
+
+      educationScore = baseEducationScore;
     }
 
-    // Positions Score (Out of 30)
+    // Experience Score (Based on years of experience) out of 25.
+    if (resume.positions != null && resume.positions!.isNotEmpty) {
+      int totalYears = calculateTotalYearsOfExperience(resume.positions!);
+
+      experienceScore = (((totalYears /
+                      (resume.positions == null || resume.positions!.isEmpty
+                          ? 2
+                          : resume.positions!.length * 2))
+                  .clamp(0, 1)) *
+              100) *
+          experienceWeight;
+    }
+
+    // Certifications Score (Based on number of certifications) out of 10.
+    if (resume.candidateCoursesAndCertifications != null &&
+        resume.candidateCoursesAndCertifications!.isNotEmpty) {
+      certificationScore =
+          (resume.candidateCoursesAndCertifications!.length * 2.5)
+              .clamp(0, 10)
+              .toDouble();
+    }
+
+    // Languages Score (Based on number of languages spoken) out of 05.
+    if (resume.candidateSpokenLanguages != null &&
+        resume.candidateSpokenLanguages!.isNotEmpty) {
+      languageScore =
+          (resume.candidateSpokenLanguages!.length * 1).clamp(0, 5).toDouble();
+    }
+
+    // Honors and Awards Score (Based on number of awards) out of 5.
+    if (resume.candidateHonorsAndAwards != null &&
+        resume.candidateHonorsAndAwards!.isNotEmpty) {
+      honorsScore =
+          (resume.candidateHonorsAndAwards!.length * 1).clamp(0, 5).toDouble();
+    }
+
+    // Skills score out of 25.
+    Set<String> uniqueSkills = {};
+
     if (resume.positions != null) {
-      int positionsCount = resume.positions!.length;
-      score += (positionsCount > 0) ? (positionsCount * 10).clamp(0, 30) : 0;
+      for (var position in resume.positions!) {
+        if (position.skills != null) {
+          uniqueSkills.addAll(position.skills!.map((s) => s.toLowerCase()));
+        }
+      }
     }
 
-    // Certifications Score (Out of 15)
-    if (resume.candidateCoursesAndCertifications != null) {
-      int certificationsCount =
-          resume.candidateCoursesAndCertifications!.length;
-      score += (certificationsCount > 0)
-          ? (certificationsCount * 5).clamp(0, 15)
-          : 0;
+    if (resume.educationQualifications != null) {
+      for (var edu in resume.educationQualifications!) {
+        if (edu.specializationSubjects != null) {
+          uniqueSkills.addAll(edu.specializationSubjects!
+              .split(',')
+              .map((s) => s.trim().toLowerCase()));
+        }
+      }
     }
 
-    // Languages Score (Out of 10)
-    if (resume.candidateSpokenLanguages != null) {
-      int languagesCount = resume.candidateSpokenLanguages!.length;
-      score += (languagesCount > 0) ? (languagesCount * 2).clamp(0, 10) : 0;
-    }
+    skillsScore = (uniqueSkills.length * 2).clamp(0, 20).toDouble();
 
-    // Honors and Awards Score (Out of 15)
-    if (resume.candidateHonorsAndAwards != null) {
-      int awardsCount = resume.candidateHonorsAndAwards!.length;
-      score += (awardsCount > 0) ? (awardsCount * 5).clamp(0, 15) : 0;
-    }
+    double totalScore = educationScore +
+        experienceScore +
+        certificationScore +
+        languageScore +
+        skillsScore +
+        honorsScore;
+    totalScore = (totalScore).clamp(0, 100);
 
-    // Ensuring the score is capped at 100
-    return score.clamp(0, 100).toInt();
+    return totalScore;
+  }
+
+  CandidateEducationModel getHighestEducation(
+      List<CandidateEducationModel> educationList) {
+    educationList.sort((a, b) {
+      return degreePriority(b.degreeType ?? '')
+          .compareTo(degreePriority(a.degreeType ?? ''));
+    });
+    return educationList.first;
+  }
+
+  int degreePriority(String degreeType) {
+    if (degreeType.contains("PhD")) return 4;
+    if (degreeType.contains("Master")) return 3;
+    if (degreeType.contains("Bachelor")) return 2;
+    return 1;
+  }
+
+  int calculateTotalYearsOfExperience(List<CandidatePositionsModel> positions) {
+    int totalYears = 0;
+    int totalMonths = 0;
+    for (var position in positions) {
+      if (position.startDate != null) {
+        DateTime startDate =
+            DateFormat('yyyy-MM-dd').parse(position.startDate!);
+        DateTime endDate = position.endDate != null
+            ? DateFormat('yyyy-MM-dd').parse(position.endDate!)
+            : DateTime.now();
+        totalMonths +=
+            ((endDate.difference(startDate).inDays).abs() / 30).round();
+      }
+    }
+    totalYears += (totalMonths / 12).round();
+    return totalYears;
   }
 
   @override
